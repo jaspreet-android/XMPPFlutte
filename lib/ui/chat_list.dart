@@ -8,7 +8,7 @@ class ChatList extends StatelessWidget {
   Widget build(BuildContext context) {
     return Scaffold(
         body: FutureBuilder<List>(
-            future: dbHelper.queryAllRows(),
+            future: dbHelper.queryAllRows(DatabaseHelper.contact_table),
             initialData: List(),
             builder: (context, snapshot) {
               return ListView.builder(
