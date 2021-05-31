@@ -1,18 +1,22 @@
 import 'dart:async';
+import 'package:flutter/material.dart';
 import 'package:xmpp_sdk/base/Connection.dart';
 import 'package:xmpp_sdk/base/ConnectionStateChangedListener.dart';
 import 'package:xmpp_sdk/base/logger/Log.dart';
 import 'package:xmpp_sdk/base/messages/MessagesListener.dart';
 import 'package:xmpp_sdk/base/presence/PresenceApi.dart';
 import 'package:xmpp_sdk/core//xmpp_stone.dart';
+import 'package:xmpp_sdk/ui/home_page.dart';
 
 class SdkConnectionStateChangedListener implements ConnectionStateChangedListener {
   final String TAG = 'SdkConnectionStateChangedListener';
   Connection _connection;
+  BuildContext _context;
   StreamSubscription<String> subscription;
 
-  SdkConnectionStateChangedListener(Connection connection, MessagesListener messagesListener) {
+  SdkConnectionStateChangedListener(Connection connection, MessagesListener messagesListener, BuildContext context) {
     _connection = connection;
+    _context = context;
     _connection.connectionStateStream.listen(onConnectionStateChanged);
   }
 
@@ -26,6 +30,10 @@ class SdkConnectionStateChangedListener implements ConnectionStateChangedListene
       print( 'Reconnecting');
     } else if (state == XmppConnectionState.Authenticated) {
       print( 'Authenticated');
+      Navigator.push(
+        _context,
+        MaterialPageRoute(builder: (_context) => MyHomePage()),
+      );
     } else if (state == XmppConnectionState.AuthenticationFailure) {
       print( 'AuthenticationFailure');
     } else if (state == XmppConnectionState.Closed) {
