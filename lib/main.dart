@@ -1,10 +1,10 @@
 // @dart=2.9
-import 'package:xmpp_sdk/xmpp/SdkConnectionStateChangedListener.dart';
-import 'package:xmpp_sdk/src/Connection.dart';
-import 'package:xmpp_sdk/src/account/XmppAccountSettings.dart';
-import 'package:xmpp_sdk/src/logger/Log.dart';
-import 'package:xmpp_sdk/xmpp/SdkMessagesListener.dart';
-import 'package:xmpp_sdk/xmpp/xmpp_stone.dart';
+import 'package:xmpp_sdk/core/SdkConnectionStateChangedListener.dart';
+import 'package:xmpp_sdk/base/Connection.dart';
+import 'package:xmpp_sdk/base/account/XmppAccountSettings.dart';
+import 'package:xmpp_sdk/base/logger/Log.dart';
+import 'package:xmpp_sdk/core/SdkMessagesListener.dart';
+import 'package:xmpp_sdk/core/xmpp_stone.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_login/flutter_login.dart';
 import 'package:xmpp_sdk/ui/chat_list.dart';
