@@ -1,49 +1,32 @@
 import 'package:flutter/material.dart';
+import 'package:xmpp_sdk/db/database_helper.dart';
 
-// Documentaion used:
-// ListTile - https://api.flutter.dev/flutter/material/ListTile-class.html
-// https://api.flutter.dev/flutter/widgets/FittedBox-class.html
-// https://api.flutter.dev/flutter/material/Card-class.html
-// I originally used ListTile but that was promblematic
+final dbHelper = DatabaseHelper.instance;
 
 class ChatList extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
-    return ListView(
-      children: <Widget>[
-        Padding(
-          padding: EdgeInsets.only(left: 20, top: 20, bottom: 20),
-          child: Row(
-            children: <Widget>[
-              Expanded(
-                child: Text(
-                  'Messages',
-                  style: TextStyle(fontSize: 30, fontWeight: FontWeight.bold),
-                ),
-              ),
-              InkWell(
-                onTap: () {},
-                child: Padding(
-                    padding: EdgeInsets.all(20.0), child: Icon(Icons.search)),
-              )
-            ],
-          ),
-        ),
-        _ChatItem(
-            'Jaspreet',
-            'https://cdn-images-1.medium.com/max/1200/1*3X2tLj85Jfq3dlGxWqQ4TA.png',
-            7,
-            true,
-            'Its a test'),
-        Padding(
-          padding: EdgeInsets.only(top: 40.0, bottom: 10),
-          child: Text(
-            'no more messages',
-            style: TextStyle(color: Colors.grey[350]),
-            textAlign: TextAlign.center,
-          ),
+    return Scaffold(
+        body: FutureBuilder<List>(
+            future: dbHelper.queryAllRows(),
+            initialData: List(),
+            builder: (context, snapshot) {
+              return ListView.builder(
+                itemCount: snapshot.data.length,
+                itemBuilder: (context, index) {
+                  Map<String, dynamic> map = snapshot.data[index];
+                  return ListTile(
+                      subtitle: _ChatItem(
+                          map['username'],
+                          'https://cdn-images-1.medium.com/max/1200/1*3X2tLj85Jfq3dlGxWqQ4TA.png',
+                          1,
+                          true,
+                          'Its a test')
+                  );
+                },
+              );
+            }
         )
-      ],
     );
   }
 }
@@ -80,7 +63,7 @@ class _ChatItem extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return InkWell(
-      onTap: () {},
+      onTap: () {print('You want to chat with this user.');},
       child: Padding(
         padding: EdgeInsets.all(20),
         child: Row(

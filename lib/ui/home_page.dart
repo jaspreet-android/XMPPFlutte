@@ -1,7 +1,9 @@
+import 'package:xmpp_sdk/db/database_helper.dart';
 import 'package:xmpp_sdk/ui/chat_list.dart';
 import 'package:flutter/material.dart';
-
+final dbHelper = DatabaseHelper.instance;
 class MessagesPage extends StatelessWidget {
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -158,7 +160,6 @@ class ProfilePage extends StatelessWidget {
 class MyHomePage extends StatefulWidget {
   MyHomePage({Key key, this.title}) : super(key: key);
   final String title;
-
   @override
   _MyHomePageState createState() => _MyHomePageState();
 }

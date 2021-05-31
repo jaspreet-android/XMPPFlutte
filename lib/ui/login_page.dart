@@ -6,16 +6,16 @@ import 'package:xmpp_sdk/core/SdkMessagesListener.dart';
 import 'package:xmpp_sdk/core/xmpp_stone.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_login/flutter_login.dart';
+import 'package:xmpp_sdk/db/database_helper.dart';
+import 'package:xmpp_sdk/ui/home_page.dart';
 
 class LoginPage extends StatelessWidget {
   final String TAG = 'LoginPage';
+  final dbHelper = DatabaseHelper.instance;
   @override
   Widget build(BuildContext context) {
     return FlutterLogin(
       title: 'XMPP Loin',
-      onSubmitAnimationCompleted: ()  {
-
-      },
       hideForgotPasswordButton: true,
       hideSignUpButton: true,
       onLogin: (LoginData data){
@@ -51,7 +51,7 @@ class LoginPage extends StatelessWidget {
   Future<void> connectXMPP(LoginData data, BuildContext context) async {
     Log.logLevel = LogLevel.DEBUG;
     Log.logXmpp = true;
-    var host = "localhost";
+    var host = "192.168.29.8";
     var port = 5222;
     var username = data.name;
     var domain = "localhost";
@@ -65,6 +65,20 @@ class LoginPage extends StatelessWidget {
     connection.connect();
     MessagesListener messagesListener = SdkMessagesListener();
     SdkConnectionStateChangedListener(connection, messagesListener, context);
+    var rosterManager = RosterManager.getInstance(connection);
+    rosterManager.rosterStream.listen((List<Buddy> buddies) {
+      buddies.forEach((Buddy buddy) {
+        Map<String, dynamic> row = {
+          DatabaseHelper.presenceName : buddy.name,
+          DatabaseHelper.username  : buddy.jid.local
+        };
+        dbHelper.insert(row);
+      });
+      Navigator.push(
+        context,
+        MaterialPageRoute(builder: (_context) => MyHomePage()),
+      );
+    });
   }
 
 }
