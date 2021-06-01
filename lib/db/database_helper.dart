@@ -68,7 +68,7 @@ class DatabaseHelper {
   // inserted row.
   Future<int> insert(table,Map<String, dynamic> row) async {
     Database db = await instance.database;
-    return await db.insert(table, row);
+    return await db.insert(table, row,conflictAlgorithm: ConflictAlgorithm.replace);
   }
 
   // All of the rows are returned as a list of maps, where each map is

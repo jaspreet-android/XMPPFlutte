@@ -16,7 +16,7 @@ class ChatList extends StatelessWidget {
                 itemBuilder: (context, index) {
                   Map<String, dynamic> map = snapshot.data[index];
                   return ListTile(
-                      subtitle: _ChatItem(
+                      title: _ChatItem(
                           map['username'],
                           'https://cdn-images-1.medium.com/max/1200/1*3X2tLj85Jfq3dlGxWqQ4TA.png',
                           1,
@@ -64,9 +64,7 @@ class _ChatItem extends StatelessWidget {
   Widget build(BuildContext context) {
     return InkWell(
       onTap: () {print('You want to chat with this user.');},
-      child: Padding(
-        padding: EdgeInsets.all(20),
-        child: Row(
+      child: Row(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: <Widget>[
             Container(
@@ -119,7 +117,6 @@ class _ChatItem extends StatelessWidget {
             )
           ],
         ),
-      ),
     );
   }
 }

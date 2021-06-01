@@ -2,12 +2,25 @@ import 'package:xmpp_sdk/db/database_helper.dart';
 import 'package:xmpp_sdk/ui/chat_list.dart';
 import 'package:flutter/material.dart';
 final dbHelper = DatabaseHelper.instance;
-class MessagesPage extends StatelessWidget {
 
+class MessagesPage extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      body: ChatList(),
+      body: new Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: <Widget>[
+          Padding(
+            padding: EdgeInsets.only(left: 20, top: 60, bottom: 0),
+            child: Text(
+              'Messages',
+              style: TextStyle(fontSize: 30, fontWeight: FontWeight.bold),
+            ),
+          ),
+          new Expanded(child:  ChatList(),
+          ),
+        ],
+      ),
       floatingActionButton: FloatingActionButton(
         onPressed: () {
           print('LOG: Let\'s write a new message');

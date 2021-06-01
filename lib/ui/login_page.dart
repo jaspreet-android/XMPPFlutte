@@ -50,7 +50,7 @@ class LoginPage extends StatelessWidget {
 
     final allRows = await dbHelper.queryAllRows(DatabaseHelper.account_table);
     if(allRows.length == 0) {
-      var host = "192.168.29.8";
+      var host = "192.168.29.9";
       var port = 5222;
       var username = data.name;
       var domain = "localhost";

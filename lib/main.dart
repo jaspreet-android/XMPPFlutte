@@ -1,5 +1,4 @@
 // @dart=2.9
-import 'dart:ffi';
 import 'package:flutter/material.dart';
 import 'package:xmpp_sdk/core/xmpp_utils.dart';
 import 'package:xmpp_sdk/db/database_helper.dart';
@@ -10,6 +9,7 @@ final dbHelper = DatabaseHelper.instance;
 void main() async{
   WidgetsFlutterBinding.ensureInitialized();
   final allRows = await dbHelper.queryAllRows(DatabaseHelper.account_table);
+  print("all rows =" + allRows.toString());
   if(allRows.length > 0){
     alreadyFilled(allRows, null);
   }
