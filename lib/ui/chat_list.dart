@@ -64,7 +64,9 @@ class _ChatItem extends StatelessWidget {
   Widget build(BuildContext context) {
     return InkWell(
       onTap: () {print('You want to chat with this user.');},
-      child: Row(
+      child: Padding(
+        padding: EdgeInsets.only(top: 15),
+        child: Row(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: <Widget>[
             Container(
@@ -117,6 +119,7 @@ class _ChatItem extends StatelessWidget {
             )
           ],
         ),
+      ),
     );
   }
 }
