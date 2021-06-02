@@ -1,34 +1,14 @@
 import 'package:flutter/material.dart';
-import 'package:xmpp_sdk/core/SdkMessagesListener.dart';
 import 'package:xmpp_sdk/db/database_helper.dart';
-import 'package:xmpp_sdk/ui/listeners/message_lestener.dart';
 
 final dbHelper = DatabaseHelper.instance;
 
-class ChatList extends StatefulWidget {
-  @override
-  ChatListState createState() => ChatListState();
-}
-
-class ChatListState extends State<ChatList> implements UIMessageListener{
-
-  SdkMessagesListener messageListener ;
-  @override
-  void initState() {
-    messageListener = SdkMessagesListener(this);
-    super.initState();
-  }
-
-  @override
-  void setState(VoidCallback fn) {
-    super.setState(fn);
-  }
-
+class ContactList extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
         body: FutureBuilder<List>(
-            future: dbHelper.getLastChats(),
+            future: dbHelper.queryAllRows(DatabaseHelper.contact_table),
             initialData: List(),
             builder: (context, snapshot) {
               return ListView.builder(
@@ -36,33 +16,27 @@ class ChatListState extends State<ChatList> implements UIMessageListener{
                 itemBuilder: (context, index) {
                   Map<String, dynamic> map = snapshot.data[index];
                   return ListTile(
-                      title: _ChatItem(
+                      title: _ContactItem(
                           map[DatabaseHelper.username],
-                          map[DatabaseHelper.user_image],
+                          map [DatabaseHelper.user_image],
                           1,
                           true,
-                          map[DatabaseHelper.content]));
+                          'Welcome to scramble apps!!!')
+                  );
                 },
               );
-            }));
-  }
-
-  refresh(){
-    setState(() {});
-  }
-  @override
-  void dispose() {
-    messageListener.removeCallback();
-    super.dispose();
+            }
+        )
+    );
   }
 }
 
-class _ChatItem extends StatelessWidget {
+class _ContactItem extends StatelessWidget {
   final String imgURL, name, message;
   final int unread;
   final bool active;
 
-  _ChatItem(this.name, this.imgURL, this.unread, this.active, this.message);
+  _ContactItem(this.name, this.imgURL, this.unread, this.active, this.message);
 
   Widget _activeIcon(isActive) {
     if (isActive) {
@@ -89,9 +63,7 @@ class _ChatItem extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return InkWell(
-      onTap: () {
-        print('You want to chat with this user.');
-      },
+      onTap: () {print('You want to chat with this user.');},
       child: Padding(
         padding: EdgeInsets.only(top: 15),
         child: Row(
@@ -105,8 +77,10 @@ class _ChatItem extends StatelessWidget {
                     onTap: () {
                       print('You want to see the display pictute.');
                     },
-                    child: CircleAvatar(
-                      backgroundImage: NetworkImage(this.imgURL),
+                    child:
+
+                    CircleAvatar(
+                      backgroundImage:  NetworkImage(this.imgURL) ,
                       radius: 30.0,
                     ),
                   ),

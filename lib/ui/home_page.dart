@@ -1,6 +1,8 @@
+import 'package:xmpp_sdk/core/SdkMessagesListener.dart';
 import 'package:xmpp_sdk/db/database_helper.dart';
 import 'package:xmpp_sdk/ui/chat_list.dart';
 import 'package:flutter/material.dart';
+import 'package:xmpp_sdk/ui/contacts_page.dart';
 final dbHelper = DatabaseHelper.instance;
 
 class MessagesPage extends StatelessWidget {
@@ -154,16 +156,30 @@ class SettingsPage extends StatelessWidget {
   }
 }
 
-class ProfilePage extends StatelessWidget {
+class ContactListPage extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      body: Padding(
-        padding: EdgeInsets.only(left: 20, top: 60, bottom: 20),
-        child: Text(
-          'Profile',
-          style: TextStyle(fontSize: 30, fontWeight: FontWeight.bold),
-        ),
+      body: new Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: <Widget>[
+          Padding(
+            padding: EdgeInsets.only(left: 20, top: 60, bottom: 0),
+            child: Text(
+              'Contacts',
+              style: TextStyle(fontSize: 30, fontWeight: FontWeight.bold),
+            ),
+          ),
+          new Expanded(child:  ContactList(),
+          ),
+        ],
+      ),
+      floatingActionButton: FloatingActionButton(
+        onPressed: () {
+          print('LOG: Let\'s write a new message');
+        },
+        child: Icon(Icons.add),
+        backgroundColor: Colors.pink, // or use Color(0xfffe64cf)
       ),
     );
   }
@@ -183,7 +199,7 @@ class _MyHomePageState extends State<MyHomePage>
 
   List<Widget> _tabList = [
     MessagesPage(),
-    ProfilePage(),
+    ContactListPage(),
     SettingsPage(),
   ];
 

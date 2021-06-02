@@ -4,6 +4,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_login/flutter_login.dart';
 import 'package:xmpp_sdk/core/xmpp_utils.dart';
 import 'package:xmpp_sdk/db/database_helper.dart';
+import 'package:xmpp_sdk/ui/home_page.dart';
 
 class LoginPage extends StatelessWidget {
   final String TAG = 'LoginPage';
@@ -50,7 +51,7 @@ class LoginPage extends StatelessWidget {
 
     final allRows = await dbHelper.queryAllRows(DatabaseHelper.account_table);
     if(allRows.length == 0) {
-      var host = "192.168.29.9";
+      var host = "192.168.29.10";
       var port = 5222;
       var username = data.name;
       var domain = "localhost";

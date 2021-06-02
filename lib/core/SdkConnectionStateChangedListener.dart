@@ -1,28 +1,23 @@
 import 'dart:async';
-import 'package:flutter/material.dart';
 import 'package:xmpp_sdk/base/Connection.dart';
 import 'package:xmpp_sdk/base/ConnectionStateChangedListener.dart';
-import 'package:xmpp_sdk/base/logger/Log.dart';
-import 'package:xmpp_sdk/base/messages/MessagesListener.dart';
 import 'package:xmpp_sdk/base/presence/PresenceApi.dart';
 import 'package:xmpp_sdk/core//xmpp_stone.dart';
-import 'package:xmpp_sdk/ui/home_page.dart';
+import 'package:xmpp_sdk/core/global.dart';
 
 class SdkConnectionStateChangedListener implements ConnectionStateChangedListener {
   final String TAG = 'SdkConnectionStateChangedListener';
-  Connection _connection;
   StreamSubscription<String> subscription;
 
-  SdkConnectionStateChangedListener(Connection connection, MessagesListener messagesListener, BuildContext context) {
-    _connection = connection;
-    _connection.connectionStateStream.listen(onConnectionStateChanged);
+  SdkConnectionStateChangedListener() {
+    Global.connection.connectionStateStream.listen(onConnectionStateChanged);
   }
 
   @override
   void onConnectionStateChanged(XmppConnectionState state) {
     if (state == XmppConnectionState.Ready) {
       print('Ready');
-      var presenceManager = PresenceManager.getInstance(_connection);
+      var presenceManager = PresenceManager.getInstance(Global.connection);
       presenceManager.presenceStream.listen(onPresence);
     } else if (state == XmppConnectionState.Reconnecting) {
       print( 'Reconnecting');

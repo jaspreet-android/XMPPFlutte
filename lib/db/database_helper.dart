@@ -34,6 +34,7 @@ class DatabaseHelper {
 
   static final contact_table = 'contacts';
   static final account_table = 'accounts';
+  static final messages_table = 'messages';
 
   static final presence_name = 'presence_name';
   static final username = 'username';
@@ -42,8 +43,22 @@ class DatabaseHelper {
   static final host = 'host';
   static final port = 'port';
   static final resource = 'resource';
+  static final message_id = 'message_id';
+  static final sender_username = 'sender_username';
+  static final receiver_username = 'receiver_username';
+  static final content = 'content';
+  static final chat_username = 'chat_username';
+  static final type = 'type';
+  static final received_time = 'received_time';
+  static final is_sent = 'is_sent';
+  static final is_delivered = 'is_delivered';
+  static final is_displayed = 'is_displayed';
+  static final user_image = 'user_image';
 
-  static final CREATE_CONTACT_TABLE = "CREATE TABLE $contact_table ($presence_name TEXT ,$username TEXT PRIMARY KEY)";
+  static final CREATE_CONTACT_TABLE = "CREATE TABLE $contact_table "
+                                      "($presence_name TEXT ,"
+                                       "$user_image TEXT DEFAULT 'https://i.stack.imgur.com/l60Hf.png' ,"
+                                      "$username TEXT PRIMARY KEY)";
 
 
   static final CREATE_ACCOUNT_TABLE = "CREATE TABLE $account_table "
@@ -55,10 +70,24 @@ class DatabaseHelper {
                                        "$resource TEXT not null ,"
                                        "PRIMARY KEY($username,$domain))";
 
+  static final CREATE_MESSAGE_TABLE = "CREATE TABLE $messages_table "
+      "($message_id TEXT not null ,"
+      "$sender_username TEXT not null ,"
+      "$receiver_username TEXT not null ,"
+      "$content TEXT not null ,"
+      "$chat_username TEXT not null ,"
+      "$type INTEGER DEFAULT 1,"
+      "$received_time  NUMBER , "
+      "$is_sent INTEGER DEFAULT 0 ,"
+      "$is_delivered INTEGER DEFAULT 0 ,"
+      "$is_displayed INTEGER DEFAULT 0 ,"
+      "PRIMARY KEY($message_id))";
+
   // SQL code to create the database table
   Future _onCreate(Database db, int version) async {
     await db.execute('$CREATE_CONTACT_TABLE');
     await db.execute('$CREATE_ACCOUNT_TABLE');
+    await db.execute('$CREATE_MESSAGE_TABLE');
   }
 
   // Helper methods
@@ -98,5 +127,17 @@ class DatabaseHelper {
   Future<int> delete(table,int id) async {
     Database db = await instance.database;
     return await db.delete(table, where: '$username = ?', whereArgs: [id]);
+  }
+
+
+  // All of the rows are returned as a list of maps, where each map is
+  // a key-value list of columns.
+  Future<List<Map<String, dynamic>>> getLastChats() async {
+    Database db = await instance.database;
+
+    var q = 'SELECT * FROM $contact_table inner join $messages_table on $contact_table.$username = $messages_table.$sender_username '
+        'group by messages.sender_username  having max(messages.received_time) order by messages.received_time desc';
+    print(q);
+    return await db.rawQuery(q);
   }
 }
