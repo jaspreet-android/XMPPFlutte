@@ -3,6 +3,7 @@ import 'dart:io';
 import 'package:path/path.dart';
 import 'package:path_provider/path_provider.dart';
 import 'package:sqflite/sqflite.dart';
+import 'package:xmpp_sdk/core/xmpp_connection.dart';
 
 class DatabaseHelper {
 
@@ -146,12 +147,13 @@ class DatabaseHelper {
 
   Future<List<Map<String, dynamic>>> getLastChatsUnread() async {
     Database db = await instance.database;
-    var q = 'SELECT count($messages_table.$is_displayed) as unread_cont, $messages_table.$content, $messages_table.$sender_username, $contact_table.$user_image FROM $contact_table '
-        'inner join $messages_table '
-        'on $contact_table.$username = $messages_table.$sender_username '
-        'where $messages_table.$is_displayed =0 '
-        'group by messages.sender_username  having max(messages.received_time) '
-        'order by messages.received_time desc';
+    var q = 'SELECT count($messages_table.$is_displayed) as unread_cont, $messages_table.$content, $messages_table.$sender_username, $contact_table.$user_image '
+        'FROM $contact_table '
+        'INNER JOIN $messages_table '
+        'ON $contact_table.$username = $messages_table.$sender_username '
+        'WHERE $messages_table.$is_displayed =0 '
+        'GROUP BY $messages_table.$sender_username having max($messages_table.$received_time) '
+        'ORDER BY $messages_table.$received_time DESC';
 
     print(q);
     return await db.rawQuery(q);
@@ -161,13 +163,29 @@ class DatabaseHelper {
     Database db = await instance.database;
     var q = 'SELECT 0 as unread_cont, $messages_table.$content,  $messages_table.$sender_username, $contact_table.$user_image '
         'FROM $messages_table '
-        'inner join  $contact_table '
-        'on $messages_table.$sender_username  = $contact_table.$username '
-        'where $messages_table.$is_displayed =1 and $messages_table.$sender_username  not in ($userNames) '
-        'group by messages.sender_username  having max(messages.received_time) '
-        'order by messages.received_time desc';
+        'INNER JOIN  $contact_table '
+        'ON $messages_table.$sender_username  = $contact_table.$username '
+        'WHERE $messages_table.$is_displayed =1 and $messages_table.$sender_username  not in ($userNames) '
+        'GROUP BY $messages_table.$sender_username having max($messages_table.$received_time) '
+        'ORDER BY $messages_table.$received_time DESC';
 
     print(q);
     return await db.rawQuery(q);
   }
+
+  Future<List<Map<String, dynamic>>> getCurrentChatDetail() async {
+    Database db = await instance.database;
+    var currentChat = XMPPConnection.currentChat;
+    var q = 'SELECT * '
+        'FROM $contact_table '
+        'INNER JOIN $messages_table '
+        'ON $contact_table.$username = $messages_table.$sender_username '
+        'WHERE $messages_table.$sender_username =  \'$currentChat\' '
+        'ORDER BY $messages_table.$received_time DESC';
+
+    print(q);
+    return await db.rawQuery(q);
+  }
+
+
 }

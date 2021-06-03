@@ -1,6 +1,8 @@
 import 'package:flutter/material.dart';
+import 'package:xmpp_sdk/base/elements/XmppAttribute.dart';
 import 'package:xmpp_sdk/base/roster/Buddy.dart';
 import 'package:xmpp_sdk/base/roster/RosterManager.dart';
+import 'package:xmpp_sdk/core/constants.dart';
 import 'package:xmpp_sdk/core/sdk_connection_listener.dart';
 import 'package:xmpp_sdk/base/Connection.dart';
 import 'package:xmpp_sdk/base/account/XmppAccountSettings.dart';
@@ -16,12 +18,18 @@ class XMPPConnection {
 
   static Connection connection;
   static SdkMessagesListener messageListener;
+  static String currentChat;
+  static String atHost ;
+
+  XMPPConnection._privateConstructor();
+  static final XMPPConnection instance = XMPPConnection._privateConstructor();
 
   Future<void> login(String host, int port, String username, String domain,
       String password, String resource, BuildContext context) async {
     Log.logLevel = LogLevel.DEBUG;
     Log.logXmpp = true;
-    var userAtDomain = username + "@" + domain;
+    atHost = "@" + domain;
+    var userAtDomain = username + atHost;
     Log.d(TAG, userAtDomain);
     var jid = Jid.fromFullJid(userAtDomain);
     print('connecting...');
@@ -53,4 +61,16 @@ class XMPPConnection {
       MaterialPageRoute(builder: (_context) => MyHomePage()),
     );
   }
+
+  void sendMessageToCurrentChat(String content){
+    var stanza = MessageStanza(AbstractStanza.getRandomId(), MessageStanzaType.CHAT);
+    stanza.toJid = Jid.fromFullJid(XMPPConnection.currentChat+ XMPPConnection.atHost);
+    XmppElement element = XmppElement();
+    element.name = Constants.REQUEST;
+    element.addAttribute(XmppAttribute('xmlns', Constants.RECEIPTS_XMLNS));
+    stanza.addChild(element);
+    stanza.body = content;
+    XMPPConnection.connection.writeStanza(stanza);
+  }
+
 }

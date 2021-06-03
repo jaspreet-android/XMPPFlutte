@@ -27,6 +27,6 @@ Future<void> alreadyFilled(final allRows ) async{
     var domain = element['domain'];
     var password = element['password'];
     var resource = element['resource'];
-    XMPPConnection().login(host,port,username,domain,password,resource,null);
+    XMPPConnection.instance.login(host,port,username,domain,password,resource,null);
   });
 }

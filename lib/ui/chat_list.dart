@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:xmpp_sdk/core/xmpp_connection.dart';
 import 'package:xmpp_sdk/db/database_helper.dart';
+import 'package:xmpp_sdk/ui/chat_detail.dart';
 import 'package:xmpp_sdk/ui/listeners/message_lestener.dart';
 
 final dbHelper = DatabaseHelper.instance;
@@ -90,6 +91,11 @@ class _ChatItem extends StatelessWidget {
     return InkWell(
       onTap: () {
         print('You want to chat with this user.');
+        XMPPConnection.currentChat = name;
+        Navigator.push(
+          context,
+          MaterialPageRoute(builder: (_context) => ChatDetail()),
+        );
       },
       child: Padding(
         padding: EdgeInsets.only(top: 15),

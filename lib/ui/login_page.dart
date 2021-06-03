@@ -62,7 +62,7 @@ class LoginPage extends StatelessWidget {
       DatabaseHelper.resource: resource
     };
     dbHelper.insert(DatabaseHelper.account_table, row);
-    XMPPConnection().login(host, port, username, domain, password, resource, context);
+    XMPPConnection.instance.login(host, port, username, domain, password, resource, context);
   }
 
 }

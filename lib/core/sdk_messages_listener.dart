@@ -26,8 +26,8 @@ class SdkMessagesListener implements MessagesListener {
   @override
   void onNewMessage(MessageStanza message) {
     if (message.body != null) {
+      int delivered =0;
       List<XmppElement>  list = message.children;
-
       list.forEach((XmppElement element) {
         var name =element.name;
         var nameSpace =  element.getNameSpace();
@@ -48,6 +48,7 @@ class SdkMessagesListener implements MessagesListener {
           element.addAttribute(XmppAttribute('id', message.id));
           stanza.addChild(element);
           XMPPConnection.connection.writeStanza(stanza);
+          delivered = 1;
         }
 
       });
@@ -63,7 +64,7 @@ class SdkMessagesListener implements MessagesListener {
         DatabaseHelper.chat_username  : message.fromJid.local,
         DatabaseHelper.received_time  : DateTime.now().millisecondsSinceEpoch,
         DatabaseHelper.is_sent  : 1,
-        DatabaseHelper.is_delivered  : 0,
+        DatabaseHelper.is_delivered  : delivered,
         DatabaseHelper.is_displayed  : 0
       };
       dbHelper.insert(DatabaseHelper.messages_table,row);
