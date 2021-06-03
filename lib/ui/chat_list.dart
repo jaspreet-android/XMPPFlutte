@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import 'package:xmpp_sdk/core/SdkMessagesListener.dart';
+import 'package:xmpp_sdk/core/xmpp_connection.dart';
 import 'package:xmpp_sdk/db/database_helper.dart';
 import 'package:xmpp_sdk/ui/listeners/message_lestener.dart';
 
@@ -12,10 +12,9 @@ class ChatList extends StatefulWidget {
 
 class ChatListState extends State<ChatList> implements UIMessageListener{
 
-  SdkMessagesListener messageListener ;
   @override
   void initState() {
-    messageListener = SdkMessagesListener(this);
+    XMPPConnection.messageListener.addCallback(this);
     super.initState();
   }
 
@@ -52,7 +51,7 @@ class ChatListState extends State<ChatList> implements UIMessageListener{
   }
   @override
   void dispose() {
-    messageListener.removeCallback();
+    XMPPConnection.messageListener.removeCallback();
     super.dispose();
   }
 }

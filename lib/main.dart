@@ -1,6 +1,6 @@
 // @dart=2.9
 import 'package:flutter/material.dart';
-import 'package:xmpp_sdk/core/xmpp_utils.dart';
+import 'package:xmpp_sdk/core/xmpp_connection.dart';
 import 'package:xmpp_sdk/db/database_helper.dart';
 import 'package:xmpp_sdk/ui/home_page.dart';
 import 'package:xmpp_sdk/ui/login_page.dart';
@@ -27,6 +27,6 @@ Future<void> alreadyFilled(final allRows ) async{
     var domain = element['domain'];
     var password = element['password'];
     var resource = element['resource'];
-    login(host,port,username,domain,password,resource,null);
+    XMPPConnection().login(host,port,username,domain,password,resource,null);
   });
 }

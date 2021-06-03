@@ -1,4 +1,4 @@
-import 'package:xmpp_sdk/core/SdkMessagesListener.dart';
+import 'package:xmpp_sdk/core/sdk_messages_listener.dart';
 import 'package:xmpp_sdk/db/database_helper.dart';
 import 'package:xmpp_sdk/ui/chat_list.dart';
 import 'package:flutter/material.dart';

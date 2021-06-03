@@ -1,10 +1,8 @@
-import 'package:flutter/cupertino.dart';
-import 'package:xmpp_sdk/base/Connection.dart';
 import 'package:xmpp_sdk/base/elements/stanzas/MessageStanza.dart';
 import 'package:xmpp_sdk/base/messages/MessageHandler.dart';
 import 'package:xmpp_sdk/base/messages/MessagesListener.dart';
 import 'package:xmpp_sdk/base/logger/Log.dart';
-import 'package:xmpp_sdk/core/global.dart';
+import 'package:xmpp_sdk/core/xmpp_connection.dart';
 import 'package:xmpp_sdk/db/database_helper.dart';
 import 'package:xmpp_sdk/ui/listeners/message_lestener.dart';
 
@@ -15,9 +13,8 @@ class SdkMessagesListener implements MessagesListener {
   UIMessageListener _UiMessageListener;
 
 
-  SdkMessagesListener(UIMessageListener UiMessageListener) {
-    _UiMessageListener = UiMessageListener;
-    var messageHandler = MessageHandler.getInstance(Global.connection);
+  SdkMessagesListener(){
+    var messageHandler = MessageHandler.getInstance(XMPPConnection.connection);
     messageHandler.messagesStream.listen(onNewMessage);
   }
 
@@ -45,6 +42,10 @@ class SdkMessagesListener implements MessagesListener {
 
   removeCallback(){
     _UiMessageListener =null;
+  }
+
+  addCallback(UIMessageListener UiMessageListener) {
+    _UiMessageListener = UiMessageListener;
   }
 
 }

@@ -3,21 +3,21 @@ import 'package:xmpp_sdk/base/Connection.dart';
 import 'package:xmpp_sdk/base/ConnectionStateChangedListener.dart';
 import 'package:xmpp_sdk/base/presence/PresenceApi.dart';
 import 'package:xmpp_sdk/core//xmpp_stone.dart';
-import 'package:xmpp_sdk/core/global.dart';
+import 'package:xmpp_sdk/core/xmpp_connection.dart';
 
 class SdkConnectionStateChangedListener implements ConnectionStateChangedListener {
   final String TAG = 'SdkConnectionStateChangedListener';
   StreamSubscription<String> subscription;
 
   SdkConnectionStateChangedListener() {
-    Global.connection.connectionStateStream.listen(onConnectionStateChanged);
+    XMPPConnection.connection.connectionStateStream.listen(onConnectionStateChanged);
   }
 
   @override
   void onConnectionStateChanged(XmppConnectionState state) {
     if (state == XmppConnectionState.Ready) {
       print('Ready');
-      var presenceManager = PresenceManager.getInstance(Global.connection);
+      var presenceManager = PresenceManager.getInstance(XMPPConnection.connection);
       presenceManager.presenceStream.listen(onPresence);
     } else if (state == XmppConnectionState.Reconnecting) {
       print( 'Reconnecting');
