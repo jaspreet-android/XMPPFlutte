@@ -130,13 +130,43 @@ class DatabaseHelper {
   }
 
 
-  // All of the rows are returned as a list of maps, where each map is
-  // a key-value list of columns.
   Future<List<Map<String, dynamic>>> getLastChats() async {
-    Database db = await instance.database;
+    List<Map<String, dynamic>> unread = await getLastChatsUnread();
+    String userNames ='';
+    unread.forEach((element) {
+      var user = element[DatabaseHelper.sender_username];
+      userNames += ',\'$user\'';
+    });
+    String finalUserNames= userNames.length >0 ?userNames.substring(1,userNames.length):'';
+    List<Map<String, dynamic>> read = await getLastChatsRead(finalUserNames);
+    List<Map<String, dynamic>> newList = new List.from(unread)..addAll(read);
+    print(newList);
+    return newList;
+  }
 
-    var q = 'SELECT * FROM $contact_table inner join $messages_table on $contact_table.$username = $messages_table.$sender_username '
-        'group by messages.sender_username  having max(messages.received_time) order by messages.received_time desc';
+  Future<List<Map<String, dynamic>>> getLastChatsUnread() async {
+    Database db = await instance.database;
+    var q = 'SELECT count($messages_table.$is_displayed) as unread_cont, $messages_table.$content, $messages_table.$sender_username, $contact_table.$user_image FROM $contact_table '
+        'inner join $messages_table '
+        'on $contact_table.$username = $messages_table.$sender_username '
+        'where $messages_table.$is_displayed =0 '
+        'group by messages.sender_username  having max(messages.received_time) '
+        'order by messages.received_time desc';
+
+    print(q);
+    return await db.rawQuery(q);
+  }
+
+  Future<List<Map<String, dynamic>>> getLastChatsRead(userNames) async {
+    Database db = await instance.database;
+    var q = 'SELECT 0 as unread_cont, $messages_table.$content,  $messages_table.$sender_username, $contact_table.$user_image '
+        'FROM $messages_table '
+        'inner join  $contact_table '
+        'on $messages_table.$sender_username  = $contact_table.$username '
+        'where $messages_table.$is_displayed =1 and $messages_table.$sender_username  not in ($userNames) '
+        'group by messages.sender_username  having max(messages.received_time) '
+        'order by messages.received_time desc';
+
     print(q);
     return await db.rawQuery(q);
   }

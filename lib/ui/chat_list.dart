@@ -36,9 +36,9 @@ class ChatListState extends State<ChatList> implements UIMessageListener{
                   Map<String, dynamic> map = snapshot.data[index];
                   return ListTile(
                       title: _ChatItem(
-                          map[DatabaseHelper.username],
+                          map[DatabaseHelper.sender_username],
                           map[DatabaseHelper.user_image],
-                          1,
+                          map['unread_cont'],
                           true,
                           map[DatabaseHelper.content]));
                 },
