@@ -1,7 +1,12 @@
+import 'package:xmpp_sdk/base/chat/Message.dart';
+import 'package:xmpp_sdk/base/elements/XmppAttribute.dart';
+import 'package:xmpp_sdk/base/elements/XmppElement.dart';
+import 'package:xmpp_sdk/base/elements/stanzas/AbstractStanza.dart';
 import 'package:xmpp_sdk/base/elements/stanzas/MessageStanza.dart';
 import 'package:xmpp_sdk/base/messages/MessageHandler.dart';
 import 'package:xmpp_sdk/base/messages/MessagesListener.dart';
 import 'package:xmpp_sdk/base/logger/Log.dart';
+import 'package:xmpp_sdk/core/constants.dart';
 import 'package:xmpp_sdk/core/xmpp_connection.dart';
 import 'package:xmpp_sdk/db/database_helper.dart';
 import 'package:xmpp_sdk/ui/listeners/message_lestener.dart';
@@ -21,6 +26,34 @@ class SdkMessagesListener implements MessagesListener {
   @override
   void onNewMessage(MessageStanza message) {
     if (message.body != null) {
+      List<XmppElement>  list = message.children;
+
+      list.forEach((XmppElement element) {
+        var name =element.name;
+        var nameSpace =  element.getNameSpace();
+
+        //xep 0184
+        // <message
+        // from='kingrichard@royalty.england.lit/throne'
+        // id='bi29sg183b4v'
+        // to='northumberland@shakespeare.lit/westminster'>
+        // <received xmlns='urn:xmpp:receipts' id='richard2-4.1.247'/>
+        // </message>
+        if(name == Constants.REQUEST && nameSpace == Constants.RECEIPTS_XMLNS){
+          var stanza = MessageStanza(AbstractStanza.getRandomId(), MessageStanzaType.CHAT);
+          stanza.toJid = message.fromJid;
+          XmppElement element = XmppElement();
+          element.name = Constants.RECEIVED;
+          element.addAttribute(XmppAttribute('xmlns', Constants.RECEIPTS_XMLNS));
+          element.addAttribute(XmppAttribute('id', message.id));
+          stanza.addChild(element);
+          XMPPConnection.connection.writeStanza(stanza);
+        }
+
+      });
+
+
+
       Log.d(TAG, message.body);
       Map<String, dynamic> row = {
         DatabaseHelper.message_id : message.id,

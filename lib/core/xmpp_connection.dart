@@ -14,7 +14,7 @@ final String TAG = 'XmppConnection';
 
 class XMPPConnection {
 
-  static var connection;
+  static Connection connection;
   static SdkMessagesListener messageListener;
 
   Future<void> login(String host, int port, String username, String domain,
