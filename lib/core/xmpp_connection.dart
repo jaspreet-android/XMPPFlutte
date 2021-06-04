@@ -10,6 +10,7 @@ import 'package:xmpp_sdk/core/sdk_messages_listener.dart';
 import 'package:xmpp_sdk/core/xmpp_stone.dart';
 import 'package:xmpp_sdk/db/database_helper.dart';
 import 'package:xmpp_sdk/ui/home_page.dart';
+import 'package:xmpp_sdk/ui/listeners/message_lestener.dart';
 
 final String TAG = 'XmppConnection';
 
@@ -62,8 +63,24 @@ class XMPPConnection {
     );
   }
 
-  void sendMessageToCurrentChat(String content){
-    var stanza = MessageStanza(AbstractStanza.getRandomId(), MessageStanzaType.CHAT);
+  void sendMessageToCurrentChat(String content, UIMessageListener listener) async{
+    String messageId = AbstractStanza.getRandomId();
+    Map<String, dynamic> row = {
+      DatabaseHelper.message_id : messageId,
+      DatabaseHelper.content : content,
+      DatabaseHelper.sender_username  : connection.account.username,
+      DatabaseHelper.receiver_username  : currentChat,
+      DatabaseHelper.chat_username  : currentChat,
+      DatabaseHelper.received_time  : DateTime.now().millisecondsSinceEpoch,
+      DatabaseHelper.is_sent  : 1,
+      DatabaseHelper.is_delivered  : 0,
+      DatabaseHelper.is_displayed  : 0
+    };
+    var inserted = await dbHelper.insert(DatabaseHelper.messages_table,row);
+    if(inserted ==1){
+      listener.refresh();
+    }
+    var stanza = MessageStanza(messageId, MessageStanzaType.CHAT);
     stanza.toJid = Jid.fromFullJid(XMPPConnection.currentChat+ XMPPConnection.atHost);
     XmppElement element = XmppElement();
     element.name = Constants.REQUEST;

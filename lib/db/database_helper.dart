@@ -115,14 +115,6 @@ class DatabaseHelper {
     return Sqflite.firstIntValue(await db.rawQuery('SELECT COUNT(*) FROM $table'));
   }
 
-  // We are assuming here that the id column in the map is set. The other
-  // column values will be used to update the row.
-  Future<int> update(table,Map<String, dynamic> row) async {
-    Database db = await instance.database;
-    String vUsername = row[username];
-    return await db.update(table, row, where: '$username = ?', whereArgs: [vUsername]);
-  }
-
   // Deletes the row specified by the id. The number of affected rows is
   // returned. This should be 1 as long as the row exists.
   Future<int> delete(table,int id) async {
@@ -179,12 +171,19 @@ class DatabaseHelper {
     var q = 'SELECT * '
         'FROM $contact_table '
         'INNER JOIN $messages_table '
-        'ON $contact_table.$username = $messages_table.$sender_username '
-        'WHERE $messages_table.$sender_username =  \'$currentChat\' '
-        'ORDER BY $messages_table.$received_time DESC';
+        'ON $contact_table.$username = $messages_table.$chat_username '
+        'WHERE $messages_table.$chat_username =  \'$currentChat\' '
+        'ORDER BY $messages_table.$received_time';
 
     print(q);
     return await db.rawQuery(q);
+  }
+
+  Future<void> updateDelivered(String messageId) async {
+    Database db = await instance.database;
+    var q = 'UPDATE $messages_table set $is_delivered = 1 where $message_id = \'$messageId\'';
+    print(q);
+    db.rawQuery(q);
   }
 
 

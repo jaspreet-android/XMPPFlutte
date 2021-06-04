@@ -25,36 +25,47 @@ class SdkMessagesListener implements MessagesListener {
 
   @override
   void onNewMessage(MessageStanza message) {
+
+    int delivered =0;
+    List<XmppElement>  list = message.children;
+    list.forEach((XmppElement element) {
+      var name =element.name;
+      var nameSpace =  element.getNameSpace();
+
+      //xep 0184
+      // <message
+      // from='kingrichard@royalty.england.lit/throne'
+      // id='bi29sg183b4v'
+      // to='northumberland@shakespeare.lit/westminster'>
+      // <received xmlns='urn:xmpp:receipts' id='richard2-4.1.247'/>
+      // </message>
+
+      if(name == Constants.REQUEST && nameSpace == Constants.RECEIPTS_XMLNS){
+        var stanza = MessageStanza(AbstractStanza.getRandomId(), MessageStanzaType.CHAT);
+        stanza.toJid = message.fromJid;
+        XmppElement elementToBeSent = XmppElement();
+        elementToBeSent.name = Constants.RECEIVED;
+        elementToBeSent.addAttribute(XmppAttribute('xmlns', Constants.RECEIPTS_XMLNS));
+        elementToBeSent.addAttribute(XmppAttribute('id', message.id));
+        stanza.addChild(elementToBeSent);
+        XMPPConnection.connection.writeStanza(stanza);
+        delivered = 1;
+      }
+
+      // <message id="aac2a" to="jaspreet_2@localhost/scrambleapps">
+      // <received xmlns="urn:xmpp:receipts" id="FORJMGFEY"/>
+      // </message>
+
+      if(name == Constants.RECEIVED && nameSpace == Constants.RECEIPTS_XMLNS){
+        String receivedId = element.getAttribute(Constants.ID).value;
+        dbHelper.updateDelivered(receivedId);
+        return;
+      }
+
+    });
+
+
     if (message.body != null) {
-      int delivered =0;
-      List<XmppElement>  list = message.children;
-      list.forEach((XmppElement element) {
-        var name =element.name;
-        var nameSpace =  element.getNameSpace();
-
-        //xep 0184
-        // <message
-        // from='kingrichard@royalty.england.lit/throne'
-        // id='bi29sg183b4v'
-        // to='northumberland@shakespeare.lit/westminster'>
-        // <received xmlns='urn:xmpp:receipts' id='richard2-4.1.247'/>
-        // </message>
-        if(name == Constants.REQUEST && nameSpace == Constants.RECEIPTS_XMLNS){
-          var stanza = MessageStanza(AbstractStanza.getRandomId(), MessageStanzaType.CHAT);
-          stanza.toJid = message.fromJid;
-          XmppElement element = XmppElement();
-          element.name = Constants.RECEIVED;
-          element.addAttribute(XmppAttribute('xmlns', Constants.RECEIPTS_XMLNS));
-          element.addAttribute(XmppAttribute('id', message.id));
-          stanza.addChild(element);
-          XMPPConnection.connection.writeStanza(stanza);
-          delivered = 1;
-        }
-
-      });
-
-
-
       Log.d(TAG, message.body);
       Map<String, dynamic> row = {
         DatabaseHelper.message_id : message.id,

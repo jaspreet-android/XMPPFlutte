@@ -1,5 +1,6 @@
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
+import 'package:xmpp_sdk/core/constants.dart';
 import 'package:xmpp_sdk/core/xmpp_connection.dart';
 import 'package:xmpp_sdk/db/database_helper.dart';
 import 'package:xmpp_sdk/ui/listeners/message_lestener.dart';
@@ -12,8 +13,8 @@ class ChatDetail extends StatefulWidget {
 }
 
 class ChatDetailState extends State<ChatDetail> implements UIMessageListener {
-  List<Map<String, dynamic>> _chatDetail;
-  final myController = TextEditingController();
+
+  final contentTextController = TextEditingController();
 
   @override
   void initState() {
@@ -51,8 +52,7 @@ class ChatDetailState extends State<ChatDetail> implements UIMessageListener {
                   width: 2,
                 ),
                 CircleAvatar(
-                  backgroundImage: NetworkImage(
-                      "<https://randomuser.me/api/portraits/men/5.jpg>"),
+                  backgroundImage: NetworkImage(Constants.DEFAULT_IMAGE),
                   maxRadius: 20,
                 ),
                 SizedBox(
@@ -132,7 +132,7 @@ class ChatDetailState extends State<ChatDetail> implements UIMessageListener {
                   SizedBox(width: 15,),
                   Expanded(
                     child: TextField(
-                      controller: myController,
+                      controller: contentTextController,
                       decoration: InputDecoration(
                           hintText: "Write message...",
                           hintStyle: TextStyle(color: Colors.black54),
@@ -143,7 +143,9 @@ class ChatDetailState extends State<ChatDetail> implements UIMessageListener {
                   SizedBox(width: 15,),
                   FloatingActionButton(
                     onPressed: () {
-                      XMPPConnection.instance.sendMessageToCurrentChat(myController.text);
+                      XMPPConnection.instance.sendMessageToCurrentChat(contentTextController.text,this);
+                      contentTextController.text = '';
+                      refresh();
                     },
                     child: Icon(Icons.send, color: Colors.white, size: 18,),
                     backgroundColor: Colors.blue,
@@ -160,6 +162,6 @@ class ChatDetailState extends State<ChatDetail> implements UIMessageListener {
   }
   @override
   void refresh() {
-    // TODO: implement refresh
+    setState(() {});
   }
 }
