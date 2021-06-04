@@ -1,5 +1,6 @@
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter/scheduler.dart';
 import 'package:xmpp_sdk/core/constants.dart';
 import 'package:xmpp_sdk/core/xmpp_connection.dart';
 import 'package:xmpp_sdk/db/database_helper.dart';
@@ -14,13 +15,14 @@ class ChatDetail extends StatefulWidget {
 
 class ChatDetailState extends State<ChatDetail> implements UIMessageListener {
 
-  final contentTextController = TextEditingController();
+  final _contentTextController = TextEditingController();
   final ScrollController _scrollController = ScrollController();
 
   @override
   void initState() {
     XMPPConnection.messageListener.addCallback(this);
     super.initState();
+    Future.delayed(Duration(seconds: 1), () => scrollBottom());
   }
 
   @override
@@ -30,7 +32,7 @@ class ChatDetailState extends State<ChatDetail> implements UIMessageListener {
 
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
+    Scaffold scaffold = Scaffold(
       appBar: AppBar(
         elevation: 0,
         automaticallyImplyLeading: false,
@@ -97,6 +99,7 @@ class ChatDetailState extends State<ChatDetail> implements UIMessageListener {
               initialData: List(),
               builder: (context, snapshot) {
                 return ListView.builder(
+                  padding: EdgeInsets.only(bottom: 100),
                   controller: _scrollController,
                   itemCount: snapshot.data.length,
                   itemBuilder: (context, index) {
@@ -134,7 +137,8 @@ class ChatDetailState extends State<ChatDetail> implements UIMessageListener {
                   SizedBox(width: 15,),
                   Expanded(
                     child: TextField(
-                      controller: contentTextController,
+                      controller: _contentTextController,
+                      autofocus: true,
                       decoration: InputDecoration(
                           hintText: "Write message...",
                           hintStyle: TextStyle(color: Colors.black54),
@@ -145,8 +149,8 @@ class ChatDetailState extends State<ChatDetail> implements UIMessageListener {
                   SizedBox(width: 15,),
                   FloatingActionButton(
                     onPressed: () {
-                      XMPPConnection.instance.sendMessageToCurrentChat(contentTextController.text,this);
-                      contentTextController.text = '';
+                      XMPPConnection.instance.sendMessageToCurrentChat(_contentTextController.text,this);
+                      _contentTextController.text = '';
                       refresh();
                     },
                     child: Icon(Icons.send, color: Colors.white, size: 18,),
@@ -161,10 +165,17 @@ class ChatDetailState extends State<ChatDetail> implements UIMessageListener {
         ],
       ),
     );
+    // scrollBottom();
+    return scaffold;
   }
   @override
   void refresh() {
     setState(() {});
+    scrollBottom();
+  }
+
+  void scrollBottom(){
+    print('scroll to bottom');
     _scrollController.animateTo(
         _scrollController.position.maxScrollExtent,
         duration: Duration(milliseconds: 200),
