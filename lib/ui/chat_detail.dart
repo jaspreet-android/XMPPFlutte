@@ -1,3 +1,5 @@
+import 'dart:async';
+
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/scheduler.dart';
@@ -32,6 +34,9 @@ class ChatDetailState extends State<ChatDetail> implements UIMessageListener {
      if (!composingSent && _contentTextController.text != previous ){
        // typing
        XMPPConnection.instance.sendStateToCurrentChat(Constants.COMPOSING);
+       Timer(Duration(seconds: 5), () {
+         XMPPConnection.instance.sendStateToCurrentChat(Constants.PAUSED);
+       });
        composingSent = true;
      }else if(_contentTextController.text == previous){
       // paused

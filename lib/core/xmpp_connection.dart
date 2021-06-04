@@ -83,10 +83,14 @@ class XMPPConnection {
     }
     var stanza = MessageStanza(messageId, MessageStanzaType.CHAT);
     stanza.toJid = Jid.fromFullJid(XMPPConnection.currentChat+ XMPPConnection.atHost);
-    XmppElement element = XmppElement();
-    element.name = Constants.REQUEST;
-    element.addAttribute(XmppAttribute('xmlns', Constants.RECEIPTS_XMLNS));
-    stanza.addChild(element);
+    XmppElement requestDelivery = XmppElement();
+    requestDelivery.name = Constants.REQUEST;
+    requestDelivery.addAttribute(XmppAttribute('xmlns', Constants.RECEIPTS_XMLNS));
+    stanza.addChild(requestDelivery);
+    XmppElement active = XmppElement();
+    active.name = Constants.ACTIVE;
+    active.addAttribute(XmppAttribute('xmlns', Constants.CHAT_STATES_XMLNS));
+    stanza.addChild(active);
     stanza.body = content;
     XMPPConnection.connection.writeStanza(stanza);
   }
@@ -101,13 +105,6 @@ class XMPPConnection {
     requestChatStates.addAttribute(XmppAttribute('xmlns', Constants.CHAT_STATES_XMLNS));
     stanza.addChild(requestChatStates);
     XMPPConnection.connection.writeStanza(stanza);
-
-    if(chatState == Constants.COMPOSING){
-      Timer(Duration(seconds: 5), () {
-        sendStateToCurrentChat(Constants.PAUSED);
-      });
-    }
-
   }
 
 }
