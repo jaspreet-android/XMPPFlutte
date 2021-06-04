@@ -15,6 +15,7 @@ class ChatDetail extends StatefulWidget {
 class ChatDetailState extends State<ChatDetail> implements UIMessageListener {
 
   final contentTextController = TextEditingController();
+  final ScrollController _scrollController = ScrollController();
 
   @override
   void initState() {
@@ -96,6 +97,7 @@ class ChatDetailState extends State<ChatDetail> implements UIMessageListener {
               initialData: List(),
               builder: (context, snapshot) {
                 return ListView.builder(
+                  controller: _scrollController,
                   itemCount: snapshot.data.length,
                   itemBuilder: (context, index) {
                     Map<String, dynamic> map = snapshot.data[index];
@@ -163,5 +165,16 @@ class ChatDetailState extends State<ChatDetail> implements UIMessageListener {
   @override
   void refresh() {
     setState(() {});
+    _scrollController.animateTo(
+        _scrollController.position.maxScrollExtent,
+        duration: Duration(milliseconds: 200),
+        curve: Curves.easeInOut
+    );
+  }
+
+  @override
+  void dispose() {
+    XMPPConnection.messageListener.removeCallback(this);
+    super.dispose();
   }
 }

@@ -127,7 +127,7 @@ class DatabaseHelper {
     List<Map<String, dynamic>> unread = await getLastChatsUnread();
     String userNames ='';
     unread.forEach((element) {
-      var user = element[DatabaseHelper.sender_username];
+      var user = element[DatabaseHelper.chat_username];
       userNames += ',\'$user\'';
     });
     String finalUserNames= userNames.length >0 ?userNames.substring(1,userNames.length):'';
@@ -139,12 +139,12 @@ class DatabaseHelper {
 
   Future<List<Map<String, dynamic>>> getLastChatsUnread() async {
     Database db = await instance.database;
-    var q = 'SELECT count($messages_table.$is_displayed) as unread_cont, $messages_table.$content, $messages_table.$sender_username, $contact_table.$user_image '
+    var q = 'SELECT count($messages_table.$is_displayed) as unread_cont, $messages_table.$content, $messages_table.$chat_username, $contact_table.$user_image '
         'FROM $contact_table '
         'INNER JOIN $messages_table '
-        'ON $contact_table.$username = $messages_table.$sender_username '
+        'ON $contact_table.$username = $messages_table.$chat_username '
         'WHERE $messages_table.$is_displayed =0 '
-        'GROUP BY $messages_table.$sender_username having max($messages_table.$received_time) '
+        'GROUP BY $messages_table.$chat_username having max($messages_table.$received_time) '
         'ORDER BY $messages_table.$received_time DESC';
 
     print(q);
@@ -153,12 +153,12 @@ class DatabaseHelper {
 
   Future<List<Map<String, dynamic>>> getLastChatsRead(userNames) async {
     Database db = await instance.database;
-    var q = 'SELECT 0 as unread_cont, $messages_table.$content,  $messages_table.$sender_username, $contact_table.$user_image '
+    var q = 'SELECT 0 as unread_cont, $messages_table.$content,  $messages_table.$chat_username, $contact_table.$user_image '
         'FROM $messages_table '
         'INNER JOIN  $contact_table '
-        'ON $messages_table.$sender_username  = $contact_table.$username '
-        'WHERE $messages_table.$is_displayed =1 and $messages_table.$sender_username  not in ($userNames) '
-        'GROUP BY $messages_table.$sender_username having max($messages_table.$received_time) '
+        'ON $messages_table.$chat_username  = $contact_table.$username '
+        'WHERE $messages_table.$is_displayed =1 and $messages_table.$chat_username  not in ($userNames) '
+        'GROUP BY $messages_table.$chat_username having max($messages_table.$received_time) '
         'ORDER BY $messages_table.$received_time DESC';
 
     print(q);
@@ -168,15 +168,18 @@ class DatabaseHelper {
   Future<List<Map<String, dynamic>>> getCurrentChatDetail() async {
     Database db = await instance.database;
     var currentChat = XMPPConnection.currentChat;
-    var q = 'SELECT * '
+    var q1 = 'UPDATE $messages_table set $is_displayed = 1 where $chat_username = \'$currentChat\'';
+    print(q1);
+    db.rawQuery(q1);
+    var q2 = 'SELECT * '
         'FROM $contact_table '
         'INNER JOIN $messages_table '
         'ON $contact_table.$username = $messages_table.$chat_username '
         'WHERE $messages_table.$chat_username =  \'$currentChat\' '
         'ORDER BY $messages_table.$received_time';
 
-    print(q);
-    return await db.rawQuery(q);
+    print(q2);
+    return await db.rawQuery(q2);
   }
 
   Future<void> updateDelivered(String messageId) async {

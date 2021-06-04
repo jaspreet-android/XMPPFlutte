@@ -37,7 +37,7 @@ class ChatListState extends State<ChatList> implements UIMessageListener{
                   Map<String, dynamic> map = snapshot.data[index];
                   return ListTile(
                       title: _ChatItem(
-                          map[DatabaseHelper.sender_username],
+                          map[DatabaseHelper.chat_username],
                           map[DatabaseHelper.user_image],
                           map['unread_cont'],
                           true,
@@ -52,7 +52,7 @@ class ChatListState extends State<ChatList> implements UIMessageListener{
   }
   @override
   void dispose() {
-    XMPPConnection.messageListener.removeCallback();
+    XMPPConnection.messageListener.removeCallback(this);
     super.dispose();
   }
 }

@@ -74,7 +74,7 @@ class XMPPConnection {
       DatabaseHelper.received_time  : DateTime.now().millisecondsSinceEpoch,
       DatabaseHelper.is_sent  : 1,
       DatabaseHelper.is_delivered  : 0,
-      DatabaseHelper.is_displayed  : 0
+      DatabaseHelper.is_displayed  : 1
     };
     var inserted = await dbHelper.insert(DatabaseHelper.messages_table,row);
     if(inserted ==1){

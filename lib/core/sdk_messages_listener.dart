@@ -15,7 +15,7 @@ class SdkMessagesListener implements MessagesListener {
 
   final String TAG = 'SdkMessagesListener';
   final dbHelper = DatabaseHelper.instance;
-  UIMessageListener _UiMessageListener;
+  List<UIMessageListener> _UiMessageListeners = List<UIMessageListener>();
 
 
   SdkMessagesListener(){
@@ -79,18 +79,18 @@ class SdkMessagesListener implements MessagesListener {
         DatabaseHelper.is_displayed  : 0
       };
       dbHelper.insert(DatabaseHelper.messages_table,row);
-      if(_UiMessageListener!=null) {
+      _UiMessageListeners.forEach((_UiMessageListener) {
         _UiMessageListener.refresh();
-      }
+      });
     }
   }
 
-  removeCallback(){
-    _UiMessageListener =null;
+  removeCallback(UIMessageListener UiMessageListener){
+    _UiMessageListeners.remove(UiMessageListener);
   }
 
   addCallback(UIMessageListener UiMessageListener) {
-    _UiMessageListener = UiMessageListener;
+    _UiMessageListeners.add(UiMessageListener);
   }
 
 }

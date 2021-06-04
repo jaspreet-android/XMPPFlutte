@@ -1,5 +1,7 @@
 import 'package:flutter/material.dart';
+import 'package:xmpp_sdk/core/xmpp_connection.dart';
 import 'package:xmpp_sdk/db/database_helper.dart';
+import 'package:xmpp_sdk/ui/chat_detail.dart';
 
 final dbHelper = DatabaseHelper.instance;
 
@@ -19,7 +21,6 @@ class ContactList extends StatelessWidget {
                       title: _ContactItem(
                           map[DatabaseHelper.username],
                           map [DatabaseHelper.user_image],
-                          1,
                           true,
                           'Welcome to scramble apps!!!')
                   );
@@ -33,10 +34,9 @@ class ContactList extends StatelessWidget {
 
 class _ContactItem extends StatelessWidget {
   final String imgURL, name, message;
-  final int unread;
   final bool active;
 
-  _ContactItem(this.name, this.imgURL, this.unread, this.active, this.message);
+  _ContactItem(this.name, this.imgURL, this.active, this.message);
 
   Widget _activeIcon(isActive) {
     if (isActive) {
@@ -63,7 +63,14 @@ class _ContactItem extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return InkWell(
-      onTap: () {print('You want to chat with this user.');},
+      onTap: () {
+      print('You want to chat with this user.');
+      XMPPConnection.currentChat = name;
+      Navigator.push(
+        context,
+        MaterialPageRoute(builder: (_context) => ChatDetail()),
+      );
+      },
       child: Padding(
         padding: EdgeInsets.only(top: 15),
         child: Row(
@@ -113,45 +120,9 @@ class _ContactItem extends StatelessWidget {
                     ],
                   )),
             ),
-            Column(
-              children: <Widget>[
-                Text('15 min', style: TextStyle(color: Colors.grey[350])),
-                _UnreadIndicator(this.unread),
-              ],
-            )
           ],
         ),
       ),
     );
-  }
-}
-
-class _UnreadIndicator extends StatelessWidget {
-  final int unread;
-
-  _UnreadIndicator(this.unread);
-
-  @override
-  Widget build(BuildContext context) {
-    if (unread == 0) {
-      return Container(); // return empty container
-    } else {
-      return Padding(
-          padding: EdgeInsets.only(top: 8.0),
-          child: ClipRRect(
-              borderRadius: BorderRadius.circular(10),
-              child: Container(
-                height: 30,
-                color: Color(0xff3e5aeb),
-                width: 30,
-                padding: EdgeInsets.all(0),
-                alignment: Alignment.center,
-                child: Text(
-                  unread.toString(),
-                  style: TextStyle(
-                      fontWeight: FontWeight.bold, color: Colors.white),
-                ),
-              )));
-    }
   }
 }
