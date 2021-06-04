@@ -1,8 +1,9 @@
 import 'package:flutter/material.dart';
+import 'package:xmpp_sdk/core/constants.dart';
 import 'package:xmpp_sdk/core/xmpp_connection.dart';
 import 'package:xmpp_sdk/db/database_helper.dart';
 import 'package:xmpp_sdk/ui/chat_detail.dart';
-import 'package:xmpp_sdk/ui/listeners/message_lestener.dart';
+import 'package:xmpp_sdk/ui/listeners/message_listener.dart';
 
 final dbHelper = DatabaseHelper.instance;
 
@@ -40,7 +41,7 @@ class ChatListState extends State<ChatList> implements UIMessageListener{
                           map[DatabaseHelper.chat_username],
                           map[DatabaseHelper.user_image],
                           map['unread_cont'],
-                          true,
+                          map[DatabaseHelper.chat_state],
                           map[DatabaseHelper.content]));
                 },
               );
@@ -60,12 +61,13 @@ class ChatListState extends State<ChatList> implements UIMessageListener{
 class _ChatItem extends StatelessWidget {
   final String imgURL, name, message;
   final int unread;
-  final bool active;
+  final String state;
 
-  _ChatItem(this.name, this.imgURL, this.unread, this.active, this.message);
+  _ChatItem(this.name, this.imgURL, this.unread, this.state, this.message);
 
-  Widget _activeIcon(isActive) {
-    if (isActive) {
+  Widget _activeIcon(String isActive) {
+    print('state = ' + isActive);
+    if (isActive == Constants.ACTIVE || isActive == Constants.COMPOSING || isActive == Constants.PAUSED) {
       return ClipRRect(
         borderRadius: BorderRadius.circular(8),
         child: Container(
@@ -118,7 +120,7 @@ class _ChatItem extends StatelessWidget {
                   Positioned(
                     right: 0,
                     bottom: 0,
-                    child: _activeIcon(active),
+                    child: _activeIcon(state),
                   ),
                 ],
               ),
@@ -135,11 +137,22 @@ class _ChatItem extends StatelessWidget {
                       ),
                       Container(
                         margin: EdgeInsets.only(top: 4.0),
-                        child: Text(this.message,
-                            style: TextStyle(
-                                color: Colors.grey, fontSize: 15, height: 1.1),
-                            maxLines: 2,
-                            overflow: TextOverflow.ellipsis),
+                        child:
+                        RichText(
+                          text: TextSpan(
+                            children: [
+                              TextSpan(
+                                style: TextStyle(color: Colors.grey[850]) ,
+                                text: (this.state == Constants.COMPOSING || this.state == Constants.PAUSED) ? "composing ..." : this.message,
+                              ),
+                              WidgetSpan(
+                                child: Icon(this.state == Constants.COMPOSING? Icons.edit_outlined:
+                                this.state == Constants.PAUSED? Icons.edit_off:
+                                Icons.text_snippet_outlined,color:  Colors.green),
+                              ),
+                            ],
+                          ),
+                        )
                       )
                     ],
                   )),

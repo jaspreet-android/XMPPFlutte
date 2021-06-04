@@ -21,7 +21,7 @@ class ContactList extends StatelessWidget {
                       title: _ContactItem(
                           map[DatabaseHelper.username],
                           map [DatabaseHelper.user_image],
-                          true,
+                          false,
                           'Welcome to scramble apps!!!')
                   );
                 },

@@ -4,7 +4,7 @@ import 'package:flutter/scheduler.dart';
 import 'package:xmpp_sdk/core/constants.dart';
 import 'package:xmpp_sdk/core/xmpp_connection.dart';
 import 'package:xmpp_sdk/db/database_helper.dart';
-import 'package:xmpp_sdk/ui/listeners/message_lestener.dart';
+import 'package:xmpp_sdk/ui/listeners/message_listener.dart';
 
 final dbHelper = DatabaseHelper.instance;
 
@@ -18,11 +18,28 @@ class ChatDetailState extends State<ChatDetail> implements UIMessageListener {
   final _contentTextController = TextEditingController();
   final ScrollController _scrollController = ScrollController();
 
+  var previous = '';
+  bool composingSent =false;
+
   @override
   void initState() {
     XMPPConnection.messageListener.addCallback(this);
     super.initState();
     Future.delayed(Duration(seconds: 1), () => scrollBottom());
+
+    _contentTextController.addListener(() {
+      print(_contentTextController.text);
+     if (!composingSent && _contentTextController.text != previous ){
+       // typing
+       XMPPConnection.instance.sendStateToCurrentChat(Constants.COMPOSING);
+       composingSent = true;
+     }else if(_contentTextController.text == previous){
+      // paused
+       XMPPConnection.instance.sendStateToCurrentChat(Constants.PAUSED);
+       composingSent = false;
+     }
+    });
+
   }
 
   @override

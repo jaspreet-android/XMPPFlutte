@@ -1,3 +1,5 @@
+import 'dart:async';
+
 import 'package:flutter/material.dart';
 import 'package:xmpp_sdk/base/elements/XmppAttribute.dart';
 import 'package:xmpp_sdk/base/roster/Buddy.dart';
@@ -10,8 +12,7 @@ import 'package:xmpp_sdk/core/sdk_messages_listener.dart';
 import 'package:xmpp_sdk/core/xmpp_stone.dart';
 import 'package:xmpp_sdk/db/database_helper.dart';
 import 'package:xmpp_sdk/ui/home_page.dart';
-import 'package:xmpp_sdk/ui/listeners/message_lestener.dart';
-
+import 'package:xmpp_sdk/ui/listeners/message_listener.dart';
 final String TAG = 'XmppConnection';
 
 
@@ -88,6 +89,25 @@ class XMPPConnection {
     stanza.addChild(element);
     stanza.body = content;
     XMPPConnection.connection.writeStanza(stanza);
+  }
+
+  //xep 0085
+  void sendStateToCurrentChat(String chatState) async{
+    String messageId = AbstractStanza.getRandomId();
+    var stanza = MessageStanza(messageId, MessageStanzaType.CHAT);
+    stanza.toJid = Jid.fromFullJid(XMPPConnection.currentChat+ XMPPConnection.atHost);
+    XmppElement requestChatStates = XmppElement();
+    requestChatStates.name = chatState;
+    requestChatStates.addAttribute(XmppAttribute('xmlns', Constants.CHAT_STATES_XMLNS));
+    stanza.addChild(requestChatStates);
+    XMPPConnection.connection.writeStanza(stanza);
+
+    if(chatState == Constants.COMPOSING){
+      Timer(Duration(seconds: 5), () {
+        sendStateToCurrentChat(Constants.PAUSED);
+      });
+    }
+
   }
 
 }

@@ -9,7 +9,7 @@ import 'package:xmpp_sdk/base/logger/Log.dart';
 import 'package:xmpp_sdk/core/constants.dart';
 import 'package:xmpp_sdk/core/xmpp_connection.dart';
 import 'package:xmpp_sdk/db/database_helper.dart';
-import 'package:xmpp_sdk/ui/listeners/message_lestener.dart';
+import 'package:xmpp_sdk/ui/listeners/message_listener.dart';
 
 class SdkMessagesListener implements MessagesListener {
 
@@ -52,6 +52,7 @@ class SdkMessagesListener implements MessagesListener {
         delivered = 1;
       }
 
+      //xep 0184
       // <message id="aac2a" to="jaspreet_2@localhost/scrambleapps">
       // <received xmlns="urn:xmpp:receipts" id="FORJMGFEY"/>
       // </message>
@@ -61,6 +62,21 @@ class SdkMessagesListener implements MessagesListener {
         dbHelper.updateDelivered(receivedId);
         return;
       }
+
+      // xep 0085
+      // <message type="chat" id="abb6a" to="jaspreet_2@localhost/scrambleapps">
+      // <body>dsdsddsdsds</body>
+      // <active xmlns="http://jabber.org/protocol/chatstates"/>
+      // <request xmlns="urn:xmpp:receipts"/>
+      // </message>
+
+      if(nameSpace == Constants.CHAT_STATES_XMLNS){
+        dbHelper.updateChatState(name,message.fromJid.local);
+        if(name == Constants.COMPOSING || name == Constants.PAUSED) {
+          updateChatUI();
+        }
+      }
+
 
     });
 
@@ -79,10 +95,15 @@ class SdkMessagesListener implements MessagesListener {
         DatabaseHelper.is_displayed  : 0
       };
       dbHelper.insert(DatabaseHelper.messages_table,row);
-      _UiMessageListeners.forEach((_UiMessageListener) {
-        _UiMessageListener.refresh();
-      });
+      updateChatUI();
     }
+  }
+
+
+  updateChatUI(){
+    _UiMessageListeners.forEach((_UiMessageListener) {
+      _UiMessageListener.refresh();
+    });
   }
 
   removeCallback(UIMessageListener UiMessageListener){

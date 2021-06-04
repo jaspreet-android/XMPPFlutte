@@ -3,6 +3,8 @@ import 'dart:io';
 import 'package:path/path.dart';
 import 'package:path_provider/path_provider.dart';
 import 'package:sqflite/sqflite.dart';
+import 'package:xmpp_sdk/base/chat/Chat.dart';
+import 'package:xmpp_sdk/core/constants.dart';
 import 'package:xmpp_sdk/core/xmpp_connection.dart';
 
 class DatabaseHelper {
@@ -55,10 +57,12 @@ class DatabaseHelper {
   static final is_delivered = 'is_delivered';
   static final is_displayed = 'is_displayed';
   static final user_image = 'user_image';
+  static final chat_state = 'chat_state';
 
   static final CREATE_CONTACT_TABLE = "CREATE TABLE $contact_table "
                                       "($presence_name TEXT ,"
-                                       "$user_image TEXT DEFAULT 'https://i.stack.imgur.com/l60Hf.png' ,"
+                                      "$user_image TEXT DEFAULT 'https://i.stack.imgur.com/l60Hf.png' ," 
+                                      "$chat_state TEXT DEFAULT '"+Constants.INACTIVE+"' ,"
                                       "$username TEXT PRIMARY KEY)";
 
 
@@ -139,13 +143,18 @@ class DatabaseHelper {
 
   Future<List<Map<String, dynamic>>> getLastChatsUnread() async {
     Database db = await instance.database;
-    var q = 'SELECT count($messages_table.$is_displayed) as unread_cont, $messages_table.$content, $messages_table.$chat_username, $contact_table.$user_image '
-        'FROM $contact_table '
-        'INNER JOIN $messages_table '
-        'ON $contact_table.$username = $messages_table.$chat_username '
-        'WHERE $messages_table.$is_displayed =0 '
-        'GROUP BY $messages_table.$chat_username having max($messages_table.$received_time) '
-        'ORDER BY $messages_table.$received_time DESC';
+    var q = 'SELECT '
+              'count($messages_table.$is_displayed) as unread_cont, '
+              '$messages_table.$content, '
+              '$messages_table.$chat_username, '
+              '$contact_table.$chat_state, '
+              '$contact_table.$user_image '
+            'FROM $contact_table '
+            'INNER JOIN $messages_table '
+            'ON $contact_table.$username = $messages_table.$chat_username '
+            'WHERE $messages_table.$is_displayed =0 '
+            'GROUP BY $messages_table.$chat_username having max($messages_table.$received_time) '
+            'ORDER BY $messages_table.$received_time DESC';
 
     print(q);
     return await db.rawQuery(q);
@@ -153,13 +162,17 @@ class DatabaseHelper {
 
   Future<List<Map<String, dynamic>>> getLastChatsRead(userNames) async {
     Database db = await instance.database;
-    var q = 'SELECT 0 as unread_cont, $messages_table.$content,  $messages_table.$chat_username, $contact_table.$user_image '
-        'FROM $messages_table '
-        'INNER JOIN  $contact_table '
-        'ON $messages_table.$chat_username  = $contact_table.$username '
-        'WHERE $messages_table.$is_displayed =1 and $messages_table.$chat_username  not in ($userNames) '
-        'GROUP BY $messages_table.$chat_username having max($messages_table.$received_time) '
-        'ORDER BY $messages_table.$received_time DESC';
+    var q = 'SELECT 0 as unread_cont, '
+              '$messages_table.$content, '
+              '$messages_table.$chat_username, '
+              '$contact_table.$chat_state, '
+              '$contact_table.$user_image '
+            'FROM $messages_table '
+            'INNER JOIN  $contact_table '
+            'ON $messages_table.$chat_username  = $contact_table.$username '
+            'WHERE $messages_table.$is_displayed =1 and $messages_table.$chat_username  not in ($userNames) '
+            'GROUP BY $messages_table.$chat_username having max($messages_table.$received_time) '
+            'ORDER BY $messages_table.$received_time DESC';
 
     print(q);
     return await db.rawQuery(q);
@@ -185,6 +198,13 @@ class DatabaseHelper {
   Future<void> updateDelivered(String messageId) async {
     Database db = await instance.database;
     var q = 'UPDATE $messages_table set $is_delivered = 1 where $message_id = \'$messageId\'';
+    print(q);
+    db.rawQuery(q);
+  }
+
+  Future<void> updateChatState(String state, String username) async {
+    Database db = await instance.database;
+    var q = 'UPDATE $contact_table set $chat_state = \'$state\'  where username = \'$username\'';
     print(q);
     db.rawQuery(q);
   }
