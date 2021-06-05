@@ -3,7 +3,8 @@ import 'dart:io';
 import 'package:path/path.dart';
 import 'package:path_provider/path_provider.dart';
 import 'package:sqflite/sqflite.dart';
-import 'package:xmpp_sdk/base/chat/Chat.dart';
+import 'package:xmpp_sdk/base/elements/stanzas/MessageStanza.dart';
+import 'package:xmpp_sdk/core/cashe/cache_utils.dart';
 import 'package:xmpp_sdk/core/constants.dart';
 import 'package:xmpp_sdk/core/xmpp_connection.dart';
 
@@ -105,6 +106,38 @@ class DatabaseHelper {
     return await db.insert(table, row,conflictAlgorithm: ConflictAlgorithm.replace);
   }
 
+  Future<void> createMessage(MessageStanza message, int delivered) async {
+    Map<String, dynamic> row = {
+      message_id: message.id,
+      content: message.body,
+      sender_username: message.fromJid.local,
+      receiver_username: message.toJid.local,
+      chat_username: message.fromJid.local,
+      received_time: DateTime.now().millisecondsSinceEpoch,
+      is_sent: 1,
+      is_delivered: delivered,
+      is_displayed: 0
+    };
+    insert(messages_table, row);
+    List<Map<String, dynamic>> lastChats = await CacheUtil.lastChats;
+    bool found = false;
+    lastChats.forEach((Map<String, dynamic> userLastChat) {
+      if (userLastChat[chat_username] == message.fromJid.local) {
+            print('cache updated');
+          userLastChat[content] = message.body;
+          print(userLastChat['unread_count']);
+          userLastChat['unread_count'] = userLastChat['unread_count'] + 1;
+          found = true;
+          return;
+      }
+    });
+
+    if(found){
+      return;
+    }
+    CacheUtil.createLastChatsCache(message.fromJid.local, 'https://i.stack.imgur.com/l60Hf.png', Constants.INACTIVE, content, 1);
+  }
+
   // All of the rows are returned as a list of maps, where each map is
   // a key-value list of columns.
   Future<List<Map<String, dynamic>>> queryAllRows(table) async {
@@ -126,25 +159,33 @@ class DatabaseHelper {
     return await db.delete(table, where: '$username = ?', whereArgs: [id]);
   }
 
+  Future<List<Map<String, dynamic>>> getLastCachedChats() async {
+    if (CacheUtil.lastChats != null) {
+      CacheUtil.needToCacheFromUI = false;
+      print('lastChats = ' + CacheUtil.lastChats.toString());
+      return CacheUtil.lastChats;
+    }
+    CacheUtil.lastChats ;
+    return getLastChats();
+  }
 
   Future<List<Map<String, dynamic>>> getLastChats() async {
     List<Map<String, dynamic>> unread = await getLastChatsUnread();
     String userNames ='';
     unread.forEach((element) {
-      var user = element[DatabaseHelper.chat_username];
+      var user = element[chat_username];
       userNames += ',\'$user\'';
     });
     String finalUserNames= userNames.length >0 ?userNames.substring(1,userNames.length):'';
     List<Map<String, dynamic>> read = await getLastChatsRead(finalUserNames);
     List<Map<String, dynamic>> newList = new List.from(unread)..addAll(read);
-    print(newList);
     return newList;
   }
 
   Future<List<Map<String, dynamic>>> getLastChatsUnread() async {
     Database db = await instance.database;
     var q = 'SELECT '
-              'count($messages_table.$is_displayed) as unread_cont, '
+              'count($messages_table.$is_displayed) as unread_count, '
               '$messages_table.$content, '
               '$messages_table.$chat_username, '
               '$contact_table.$chat_state, '
@@ -162,7 +203,7 @@ class DatabaseHelper {
 
   Future<List<Map<String, dynamic>>> getLastChatsRead(userNames) async {
     Database db = await instance.database;
-    var q = 'SELECT 0 as unread_cont, '
+    var q = 'SELECT 0 as unread_count, '
               '$messages_table.$content, '
               '$messages_table.$chat_username, '
               '$contact_table.$chat_state, '
@@ -184,6 +225,14 @@ class DatabaseHelper {
     var q1 = 'UPDATE $messages_table set $is_displayed = 1 where $chat_username = \'$currentChat\'';
     print(q1);
     db.rawQuery(q1);
+    List<Map<String, dynamic>> lastChats = await CacheUtil.lastChats;
+    lastChats.forEach((Map<String, dynamic> userLastChat) {
+      if (userLastChat[chat_username] == XMPPConnection.currentChat) {
+        print('cache updated');
+        userLastChat['unread_count'] = 0;
+        return;
+      }
+    });
     var q2 = 'SELECT * '
         'FROM $contact_table '
         'INNER JOIN $messages_table '
@@ -206,6 +255,14 @@ class DatabaseHelper {
     Database db = await instance.database;
     var q = 'UPDATE $contact_table set $chat_state = \'$state\'  where username = \'$username\'';
     print(q);
+    List<Map<String, dynamic>> lastChats = await CacheUtil.lastChats;
+    lastChats.forEach((Map<String, dynamic> userLastChat) {
+      if (userLastChat[chat_username] == username) {
+        print('cache updated');
+        userLastChat[chat_state] = state;
+        return;
+      }
+    });
     db.rawQuery(q);
   }
 

@@ -83,18 +83,7 @@ class SdkMessagesListener implements MessagesListener {
 
     if (message.body != null) {
       Log.d(TAG, message.body);
-      Map<String, dynamic> row = {
-        DatabaseHelper.message_id : message.id,
-        DatabaseHelper.content : message.body,
-        DatabaseHelper.sender_username  : message.fromJid.local,
-        DatabaseHelper.receiver_username  : message.toJid.local,
-        DatabaseHelper.chat_username  : message.fromJid.local,
-        DatabaseHelper.received_time  : DateTime.now().millisecondsSinceEpoch,
-        DatabaseHelper.is_sent  : 1,
-        DatabaseHelper.is_delivered  : delivered,
-        DatabaseHelper.is_displayed  : 0
-      };
-      dbHelper.insert(DatabaseHelper.messages_table,row);
+      dbHelper.createMessage(message,delivered);
       updateChatUI();
     }
   }

@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:xmpp_sdk/core/cashe/cache_utils.dart';
 import 'package:xmpp_sdk/core/constants.dart';
 import 'package:xmpp_sdk/core/xmpp_connection.dart';
 import 'package:xmpp_sdk/db/database_helper.dart';
@@ -29,20 +30,29 @@ class ChatListState extends State<ChatList> implements UIMessageListener{
   Widget build(BuildContext context) {
     return Scaffold(
         body: FutureBuilder<List>(
-            future: dbHelper.getLastChats(),
+            future: dbHelper.getLastCachedChats(),
             initialData: List(),
             builder: (context, snapshot) {
               return ListView.builder(
                 itemCount: snapshot.data.length,
                 itemBuilder: (context, index) {
                   Map<String, dynamic> map = snapshot.data[index];
-                  return ListTile(
+                  ListTile listTile = ListTile(
                       title: _ChatItem(
                           map[DatabaseHelper.chat_username],
                           map[DatabaseHelper.user_image],
-                          map['unread_cont'],
+                          map['unread_count'],
                           map[DatabaseHelper.chat_state],
                           map[DatabaseHelper.content]));
+                  if(CacheUtil.needToCacheFromUI) {
+                    CacheUtil.createLastChatsCache(
+                        map[DatabaseHelper.chat_username],
+                        map[DatabaseHelper.user_image],
+                        map[DatabaseHelper.chat_state],
+                        map[DatabaseHelper.content], map['unread_count']);
+                    print('cached from ui');
+                  }
+                  return listTile;
                 },
               );
             }));

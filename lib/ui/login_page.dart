@@ -46,7 +46,7 @@ class LoginPage extends StatelessWidget {
   Future<void> connectXMPP(LoginData data, BuildContext context) async {
     Log.logLevel = LogLevel.DEBUG;
     Log.logXmpp = true;
-    var host = "192.168.29.11";
+    var host = "192.168.29.12";
     var port = 5222;
     var username = data.name;
     var domain = "localhost";

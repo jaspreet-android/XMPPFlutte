@@ -35,6 +35,7 @@ class ChatDetailState extends State<ChatDetail> implements UIMessageListener {
        // typing
        XMPPConnection.instance.sendStateToCurrentChat(Constants.COMPOSING);
        Timer(Duration(seconds: 5), () {
+         composingSent = false;
          XMPPConnection.instance.sendStateToCurrentChat(Constants.PAUSED);
        });
        composingSent = true;
