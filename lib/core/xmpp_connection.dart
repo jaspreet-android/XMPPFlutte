@@ -8,7 +8,7 @@ import 'package:xmpp_sdk/core/constants.dart';
 import 'package:xmpp_sdk/core/sdk_connection_listener.dart';
 import 'package:xmpp_sdk/base/Connection.dart';
 import 'package:xmpp_sdk/base/account/XmppAccountSettings.dart';
-import 'package:xmpp_sdk/core/sdk_messages_listener.dart';
+import 'package:xmpp_sdk/core/sdk_packet_listener.dart';
 import 'package:xmpp_sdk/core/xmpp_stone.dart';
 import 'package:xmpp_sdk/db/database_helper.dart';
 import 'package:xmpp_sdk/ui/home_page.dart';
@@ -19,7 +19,7 @@ final String TAG = 'XmppConnection';
 class XMPPConnection {
 
   static Connection connection;
-  static SdkMessagesListener messageListener;
+  static SdkPacketListener messageListener;
   static String currentChat;
   static String atHost ;
 
@@ -40,7 +40,7 @@ class XMPPConnection {
         host: host);
     connection = Connection(account);
     connection.connect();
-    messageListener = SdkMessagesListener();
+    messageListener = SdkPacketListener();
     SdkConnectionStateChangedListener();
     var rosterManager = RosterManager.getInstance(connection);
     rosterManager.rosterStream.listen((List<Buddy> buddies) {

@@ -5,6 +5,7 @@ import 'package:xmpp_sdk/core/xmpp_connection.dart';
 import 'package:xmpp_sdk/db/database_helper.dart';
 import 'package:xmpp_sdk/ui/chat_detail.dart';
 import 'package:xmpp_sdk/ui/listeners/message_listener.dart';
+import 'package:xmpp_sdk/ui/util/date_util.dart';
 
 final dbHelper = DatabaseHelper.instance;
 
@@ -17,7 +18,7 @@ class ChatListState extends State<ChatList> implements UIMessageListener{
 
   @override
   void initState() {
-    XMPPConnection.messageListener.addCallback(this);
+    XMPPConnection.messageListener.addMessageCallback(this);
     super.initState();
   }
 
@@ -43,13 +44,16 @@ class ChatListState extends State<ChatList> implements UIMessageListener{
                           map[DatabaseHelper.user_image],
                           map['unread_count'],
                           map[DatabaseHelper.chat_state],
-                          map[DatabaseHelper.content]));
+                          map[DatabaseHelper.content],
+                          map[DatabaseHelper.received_time]));
                   if(CacheUtil.needToCacheFromUI) {
                     CacheUtil.createLastChatsCache(
                         map[DatabaseHelper.chat_username],
                         map[DatabaseHelper.user_image],
                         map[DatabaseHelper.chat_state],
-                        map[DatabaseHelper.content], map['unread_count']);
+                        map[DatabaseHelper.content],
+                        map['unread_count'],
+                        map[DatabaseHelper.received_time]);
                     print('cached from ui');
                   }
                   return listTile;
@@ -63,7 +67,7 @@ class ChatListState extends State<ChatList> implements UIMessageListener{
   }
   @override
   void dispose() {
-    XMPPConnection.messageListener.removeCallback(this);
+    XMPPConnection.messageListener.removeMessageCallback(this);
     super.dispose();
   }
 }
@@ -72,8 +76,8 @@ class _ChatItem extends StatelessWidget {
   final String imgURL, name, message;
   final int unread;
   final String state;
-
-  _ChatItem(this.name, this.imgURL, this.unread, this.state, this.message);
+  final int time;
+  _ChatItem(this.name, this.imgURL, this.unread, this.state, this.message, this.time);
 
   Widget _activeIcon(String isActive) {
     print('state = ' + isActive);
@@ -169,7 +173,7 @@ class _ChatItem extends StatelessWidget {
             ),
             Column(
               children: <Widget>[
-                Text('15 min', style: TextStyle(color: Colors.grey[350])),
+                Text(DateUtil.showRecentMessageTime(time), style: TextStyle(color: Colors.grey[350])),
                 _UnreadIndicator(this.unread),
               ],
             )

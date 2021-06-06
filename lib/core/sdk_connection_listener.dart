@@ -17,8 +17,6 @@ class SdkConnectionStateChangedListener implements ConnectionStateChangedListene
   void onConnectionStateChanged(XmppConnectionState state) {
     if (state == XmppConnectionState.Ready) {
       print('Ready');
-      var presenceManager = PresenceManager.getInstance(XMPPConnection.connection);
-      presenceManager.presenceStream.listen(onPresence);
     } else if (state == XmppConnectionState.Reconnecting) {
       print( 'Reconnecting');
     } else if (state == XmppConnectionState.Authenticated) {
@@ -56,11 +54,5 @@ class SdkConnectionStateChangedListener implements ConnectionStateChangedListene
     } else if (state == XmppConnectionState.WouldLikeToOpen) {
       print( 'WouldLikeToOpen');
     }
-
-
-  }
-
-  void onPresence(PresenceData event) {
-    print( 'presence Event from ' + event.jid.fullJid + ' PRESENCE: ' + event.showElement.toString());
   }
 }

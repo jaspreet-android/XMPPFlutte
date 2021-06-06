@@ -1,4 +1,3 @@
-import 'package:xmpp_sdk/base/chat/Message.dart';
 import 'package:xmpp_sdk/base/elements/XmppAttribute.dart';
 import 'package:xmpp_sdk/base/elements/XmppElement.dart';
 import 'package:xmpp_sdk/base/elements/stanzas/AbstractStanza.dart';
@@ -8,19 +7,23 @@ import 'package:xmpp_sdk/base/messages/MessagesListener.dart';
 import 'package:xmpp_sdk/base/logger/Log.dart';
 import 'package:xmpp_sdk/core/constants.dart';
 import 'package:xmpp_sdk/core/xmpp_connection.dart';
+import 'package:xmpp_sdk/core/xmpp_stone.dart';
 import 'package:xmpp_sdk/db/database_helper.dart';
 import 'package:xmpp_sdk/ui/listeners/message_listener.dart';
+import 'package:xmpp_sdk/ui/listeners/statue_listener.dart';
 
-class SdkMessagesListener implements MessagesListener {
+class SdkPacketListener implements MessagesListener {
 
   final String TAG = 'SdkMessagesListener';
   final dbHelper = DatabaseHelper.instance;
   List<UIMessageListener> _UiMessageListeners = List<UIMessageListener>();
+  List<UIStatusListener> _UiStatusListeners = List<UIStatusListener>();
 
-
-  SdkMessagesListener(){
+  SdkPacketListener(){
     var messageHandler = MessageHandler.getInstance(XMPPConnection.connection);
     messageHandler.messagesStream.listen(onNewMessage);
+    var presenceManager = PresenceManager.getInstance(XMPPConnection.connection);
+    presenceManager.presenceStream.listen(onPresence);
   }
 
   @override
@@ -72,6 +75,7 @@ class SdkMessagesListener implements MessagesListener {
 
       if(nameSpace == Constants.CHAT_STATES_XMLNS){
         dbHelper.updateChatState(name,message.fromJid.local);
+        updateStatusUI(name);
         if(name == Constants.COMPOSING || name == Constants.PAUSED) {
           updateChatUI();
         }
@@ -95,12 +99,33 @@ class SdkMessagesListener implements MessagesListener {
     });
   }
 
-  removeCallback(UIMessageListener UiMessageListener){
-    _UiMessageListeners.remove(UiMessageListener);
+  updateStatusUI(String status){
+    _UiStatusListeners.forEach((_UiMessageListener) {
+      _UiMessageListener.updateStatus(status);
+    });
   }
 
-  addCallback(UIMessageListener UiMessageListener) {
-    _UiMessageListeners.add(UiMessageListener);
+  removeMessageCallback(UIMessageListener uiMessageListener){
+    _UiMessageListeners.remove(uiMessageListener);
   }
 
+  addMessageCallback(UIMessageListener uiMessageListener) {
+    _UiMessageListeners.add(uiMessageListener);
+  }
+
+
+  removeStatusCallback(UIStatusListener uiStatusListener){
+    _UiStatusListeners.remove(uiStatusListener);
+  }
+
+  addStatusCallback(UIStatusListener uiStatusListener) {
+    _UiStatusListeners.add(uiStatusListener);
+  }
+
+  void onPresence(PresenceData event) {
+    print( 'presence Event from ' + event.jid.fullJid + ' PRESENCE: ' + event.showElement.toString());
+    dbHelper.updateChatState(event.status == null? Constants.ACTIVE: Constants.INACTIVE, event.jid.local );
+    updateStatusUI(event.showElement.toString());
+    updateChatUI();
+  }
 }

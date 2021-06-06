@@ -107,6 +107,7 @@ class DatabaseHelper {
   }
 
   Future<void> createMessage(MessageStanza message, int delivered) async {
+    int time = DateTime.now().millisecondsSinceEpoch;
     Map<String, dynamic> row = {
       message_id: message.id,
       content: message.body,
@@ -135,7 +136,7 @@ class DatabaseHelper {
     if(found){
       return;
     }
-    CacheUtil.createLastChatsCache(message.fromJid.local, 'https://i.stack.imgur.com/l60Hf.png', Constants.INACTIVE, content, 1);
+    CacheUtil.createLastChatsCache(message.fromJid.local, 'https://i.stack.imgur.com/l60Hf.png', Constants.INACTIVE, content, 1,time);
   }
 
   // All of the rows are returned as a list of maps, where each map is
@@ -187,6 +188,7 @@ class DatabaseHelper {
     var q = 'SELECT '
               'count($messages_table.$is_displayed) as unread_count, '
               '$messages_table.$content, '
+              '$messages_table.$received_time, '
               '$messages_table.$chat_username, '
               '$contact_table.$chat_state, '
               '$contact_table.$user_image '
@@ -205,6 +207,7 @@ class DatabaseHelper {
     Database db = await instance.database;
     var q = 'SELECT 0 as unread_count, '
               '$messages_table.$content, '
+              '$messages_table.$received_time, '
               '$messages_table.$chat_username, '
               '$contact_table.$chat_state, '
               '$contact_table.$user_image '
