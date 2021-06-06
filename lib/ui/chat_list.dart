@@ -157,11 +157,10 @@ class _ChatItem extends StatelessWidget {
                             children: [
                               TextSpan(
                                 style: TextStyle(color: Colors.grey[850]) ,
-                                text: (this.state == Constants.COMPOSING || this.state == Constants.PAUSED) ? "composing ..." : this.message,
+                                text: (this.state == Constants.COMPOSING) ? "composing ..." : this.message,
                               ),
                               WidgetSpan(
                                 child: Icon(this.state == Constants.COMPOSING? Icons.edit_outlined:
-                                this.state == Constants.PAUSED? Icons.edit_off:
                                 Icons.text_snippet_outlined,color:  Colors.green),
                               ),
                             ],

@@ -19,6 +19,6 @@ class CacheUtil {
     if(lastChats == null){
       lastChats = Future(() => List());
     }
-    (await lastChats).add(userLastChatNew);
+    (await lastChats).insert(0,userLastChatNew);
   }
 }

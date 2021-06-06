@@ -124,10 +124,11 @@ class DatabaseHelper {
     bool found = false;
     lastChats.forEach((Map<String, dynamic> userLastChat) {
       if (userLastChat[chat_username] == message.fromJid.local) {
-            print('cache updated');
+          print('cache updated');
           userLastChat[content] = message.body;
-          print(userLastChat['unread_count']);
           userLastChat['unread_count'] = userLastChat['unread_count'] + 1;
+          lastChats.remove(userLastChat);
+          lastChats.insert(0, userLastChat);
           found = true;
           return;
       }
