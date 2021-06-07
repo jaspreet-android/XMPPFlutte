@@ -127,7 +127,7 @@ class _ChatItem extends StatelessWidget {
                       print('You want to see the display pictute.');
                     },
                     child: CircleAvatar(
-                      backgroundImage: NetworkImage(this.imgURL),
+                      backgroundImage: imgURL == ''? ExactAssetImage('assets/images/default.png'): NetworkImage(this.imgURL),
                       radius: 30.0,
                     ),
                   ),

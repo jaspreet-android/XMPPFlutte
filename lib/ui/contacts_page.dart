@@ -87,7 +87,7 @@ class _ContactItem extends StatelessWidget {
                     child:
 
                     CircleAvatar(
-                      backgroundImage:  NetworkImage(this.imgURL) ,
+                      backgroundImage: imgURL == ''? ExactAssetImage('assets/images/default.png'): NetworkImage(this.imgURL),
                       radius: 30.0,
                     ),
                   ),

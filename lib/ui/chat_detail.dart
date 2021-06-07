@@ -82,7 +82,7 @@ class ChatDetailState extends State<ChatDetail> implements UIMessageListener, UI
                   width: 2,
                 ),
                 CircleAvatar(
-                  backgroundImage: NetworkImage(Constants.DEFAULT_IMAGE),
+                  backgroundImage: ExactAssetImage('assets/images/default.png'),
                   maxRadius: 20,
                 ),
                 SizedBox(

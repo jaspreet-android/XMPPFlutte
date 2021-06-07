@@ -62,7 +62,7 @@ class DatabaseHelper {
 
   static final CREATE_CONTACT_TABLE = "CREATE TABLE $contact_table "
                                       "($presence_name TEXT ,"
-                                      "$user_image TEXT DEFAULT 'https://i.stack.imgur.com/l60Hf.png' ," 
+                                      "$user_image TEXT DEFAULT '' ,"
                                       "$chat_state TEXT DEFAULT '"+Constants.INACTIVE+"' ,"
                                       "$username TEXT PRIMARY KEY)";
 
