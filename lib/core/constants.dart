@@ -18,4 +18,7 @@ class Constants {
   static final PAUSED = "paused";
   static final CHAT_STATES_XMLNS = "http://jabber.org/protocol/chatstates";
 
+  // XEP 0077
+  static final REGISTER_XMLNS = "jabber:iq:register";
+
 }

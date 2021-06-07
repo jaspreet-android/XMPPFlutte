@@ -7,10 +7,14 @@ import 'package:cryptoutils/utils.dart';
 import 'package:crypto/crypto.dart' as crypto;
 import 'package:xmpp_sdk/base/Connection.dart';
 import 'package:xmpp_sdk/base/elements/XmppAttribute.dart';
+import 'package:xmpp_sdk/base/elements/forms/QueryElement.dart';
 import 'package:xmpp_sdk/base/elements/nonzas/Nonza.dart';
 import 'package:unorm_dart/unorm_dart.dart' as unorm;
+import 'package:xmpp_sdk/base/elements/stanzas/IqStanza.dart';
 import 'package:xmpp_sdk/base/features/sasl/AbstractSaslHandler.dart';
 import 'package:xmpp_sdk/base/features/sasl/SaslAuthenticationFeature.dart';
+import 'package:xmpp_sdk/core/constants.dart';
+import 'package:xmpp_sdk/core/xmpp_stone.dart';
 
 import '../../logger/Log.dart';
 
@@ -85,7 +89,26 @@ class ScramSaslHandler implements AbstractSaslHandler {
   void _parseAnswer(Nonza nonza) {
     if (_scramState == ScramStates.AUTH_SENT) {
       if (nonza.name == 'failure') {
-        _fireAuthFailed('Auth Error in sent username');
+        //xep 0077
+        if(_connection.needToRegister) {
+          String id = AbstractStanza.getRandomId();
+          IqStanza register = new IqStanza(id, IqStanzaType.SET);
+          QueryElement element = new QueryElement();
+          element.setXmlns(Constants.REGISTER_XMLNS);
+          XmppElement username = XmppElement();
+          username.name = 'username';
+          username.textValue = _connection.account.username;
+          element.addChild(username);
+          XmppElement password = XmppElement();
+          password.name = 'password';
+          password.textValue = _connection.account.password;
+          element.addChild(password);
+          register.addChild(element);
+          register.toJid = _connection.serverName;
+          _connection.writeStanza(register);
+        }else{
+          _fireAuthFailed('Auth Error in sent username');
+        }
       } else if (nonza.name == 'challenge') {
         //challenge
         challengeFirst(nonza.textValue);

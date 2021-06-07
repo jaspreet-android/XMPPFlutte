@@ -49,6 +49,7 @@ class Connection {
   static Map<String, Connection> instances = <String, Connection>{};
 
   XmppAccountSettings account;
+  bool needToRegister = false;
 
   StreamManagementModule streamManagementModule;
 

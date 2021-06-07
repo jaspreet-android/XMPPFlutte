@@ -259,6 +259,9 @@ class DatabaseHelper {
     Database db = await instance.database;
     var q = 'UPDATE $contact_table set $chat_state = \'$state\'  where username = \'$username\'';
     print(q);
+    db.rawQuery(q);
+    if(CacheUtil.lastChats == null)
+      return;
     List<Map<String, dynamic>> lastChats = await CacheUtil.lastChats;
     lastChats.forEach((Map<String, dynamic> userLastChat) {
       if (userLastChat[chat_username] == username) {
@@ -267,7 +270,6 @@ class DatabaseHelper {
         return;
       }
     });
-    db.rawQuery(q);
   }
 
 

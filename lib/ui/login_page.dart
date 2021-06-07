@@ -13,7 +13,9 @@ class LoginPage extends StatelessWidget {
     return FlutterLogin(
       title: 'XMPP Loin',
       hideForgotPasswordButton: true,
-      hideSignUpButton: true,
+      hideSignUpButton: false,
+      loginAfterSignUp: false,
+
       onLogin: (LoginData data){
         connectXMPP(data,context);
         return null;
@@ -32,6 +34,8 @@ class LoginPage extends StatelessWidget {
         confirmPasswordHint: 'Confirm',
         loginButton: 'LOG IN',
         signupButton: 'REGISTER',
+        signUpSuccess: 'Please Wait ... ',
+        flushbarTitleSuccess : ' ...',
         forgotPasswordButton: 'Forgot password?',
         recoverPasswordButton: 'HELP ME',
         goBackButton: 'GO BACK',
@@ -39,29 +43,40 @@ class LoginPage extends StatelessWidget {
         recoverPasswordDescription:
         'Lorem Ipsum is simply dummy text of the printing and typesetting industry',
         recoverPasswordSuccess: 'Password rescued successfully',
-      ),
+      // ignore: missing_return
+      ), onRecoverPassword: (String ) {
+      // ignore: missing_return
+    }, onSignup: (LoginData data ) {
+      registerUser(data, context);
+      return null;
+    },
     );
+  }
+
+
+  Future<void> registerUser(LoginData data, BuildContext context) async {
+    Log.logLevel = LogLevel.DEBUG;
+    Log.logXmpp = true;
+    var host = XMPPConnection.HOST;
+    var port = XMPPConnection.PORT;
+    var username = data.name;
+    var domain = XMPPConnection.DOMAIN;
+    var password = data.password;
+    var resource = XMPPConnection.RESOURCE;
+    print('connecting...');
+    XMPPConnection.instance.register(host, port, username, domain, password, resource, context);
   }
 
   Future<void> connectXMPP(LoginData data, BuildContext context) async {
     Log.logLevel = LogLevel.DEBUG;
     Log.logXmpp = true;
-    var host = "192.168.29.12";
-    var port = 5222;
+    var host = XMPPConnection.HOST;
+    var port = XMPPConnection.PORT;
     var username = data.name;
-    var domain = "localhost";
+    var domain = XMPPConnection.DOMAIN;
     var password = data.password;
-    var resource = 'scrambleapps';
+    var resource = XMPPConnection.RESOURCE;
     print('connecting...');
-    Map<String, dynamic> row = {
-      DatabaseHelper.username: username,
-      DatabaseHelper.password: password,
-      DatabaseHelper.domain: domain,
-      DatabaseHelper.host: host,
-      DatabaseHelper.port: port.toString(),
-      DatabaseHelper.resource: resource
-    };
-    dbHelper.insert(DatabaseHelper.account_table, row);
     XMPPConnection.instance.login(host, port, username, domain, password, resource, context);
   }
 

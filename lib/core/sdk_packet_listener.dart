@@ -1,6 +1,7 @@
 import 'package:xmpp_sdk/base/elements/XmppAttribute.dart';
 import 'package:xmpp_sdk/base/elements/XmppElement.dart';
 import 'package:xmpp_sdk/base/elements/stanzas/AbstractStanza.dart';
+import 'package:xmpp_sdk/base/elements/stanzas/IqStanza.dart';
 import 'package:xmpp_sdk/base/elements/stanzas/MessageStanza.dart';
 import 'package:xmpp_sdk/base/messages/MessageHandler.dart';
 import 'package:xmpp_sdk/base/messages/MessagesListener.dart';
@@ -128,4 +129,5 @@ class SdkPacketListener implements MessagesListener {
     updateStatusUI(event.showElement.toString());
     updateChatUI();
   }
+
 }
