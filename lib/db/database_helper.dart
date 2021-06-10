@@ -230,13 +230,15 @@ class DatabaseHelper {
     print(q1);
     db.rawQuery(q1);
     List<Map<String, dynamic>> lastChats = await CacheUtil.lastChats;
-    lastChats.forEach((Map<String, dynamic> userLastChat) {
-      if (userLastChat[chat_username] == XMPPConnection.currentChat) {
-        print('cache updated');
-        userLastChat['unread_count'] = 0;
-        return;
-      }
-    });
+    if(lastChats != null) {
+      lastChats.forEach((Map<String, dynamic> userLastChat) {
+        if (userLastChat[chat_username] == XMPPConnection.currentChat) {
+          print('cache updated');
+          userLastChat['unread_count'] = 0;
+          return;
+        }
+      });
+    }
     var q2 = 'SELECT * '
         'FROM $contact_table '
         'INNER JOIN $messages_table '
