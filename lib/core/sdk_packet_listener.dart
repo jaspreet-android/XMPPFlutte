@@ -3,6 +3,7 @@ import 'package:xmpp_sdk/base/elements/XmppElement.dart';
 import 'package:xmpp_sdk/base/elements/stanzas/AbstractStanza.dart';
 import 'package:xmpp_sdk/base/elements/stanzas/IqStanza.dart';
 import 'package:xmpp_sdk/base/elements/stanzas/MessageStanza.dart';
+import 'package:xmpp_sdk/base/features/streammanagement/StreamManagmentModule.dart';
 import 'package:xmpp_sdk/base/messages/MessageHandler.dart';
 import 'package:xmpp_sdk/base/messages/MessagesListener.dart';
 import 'package:xmpp_sdk/base/logger/Log.dart';
@@ -64,6 +65,7 @@ class SdkPacketListener implements MessagesListener {
       if(name == Constants.RECEIVED && nameSpace == Constants.RECEIPTS_XMLNS){
         String receivedId = element.getAttribute(Constants.ID).value;
         dbHelper.updateDelivered(receivedId);
+        updateChatUI();
         return;
       }
 

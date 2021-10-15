@@ -257,6 +257,13 @@ class DatabaseHelper {
     db.rawQuery(q);
   }
 
+  Future<void> updateSent(String messageId) async {
+    Database db = await instance.database;
+    var q = 'UPDATE $messages_table set $is_sent = 1 where $message_id = \'$messageId\'';
+    print(q);
+    db.rawQuery(q);
+  }
+
   Future<void> updateChatState(String state, String username) async {
     Database db = await instance.database;
     var q = 'UPDATE $contact_table set $chat_state = \'$state\'  where username = \'$username\'';

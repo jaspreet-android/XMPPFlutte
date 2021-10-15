@@ -56,7 +56,10 @@ class StreamManagementModule extends Negotiator {
   void parseAckResponse(String rawValue) {
     var lastDeliveredStanza = int.parse(rawValue);
     var shouldStay = streamState.lastSentStanza - lastDeliveredStanza;
+    print( "shouldStay = " + shouldStay.toString());
     if (shouldStay < 0) shouldStay = 0;
+
+    print( "streamState.nonConfirmedSentStanzas.length = " + streamState.nonConfirmedSentStanzas.length.toString() );
     while (streamState.nonConfirmedSentStanzas.length > shouldStay) {
       var stanza =
           streamState.nonConfirmedSentStanzas.removeFirst() as AbstractStanza;
@@ -133,6 +136,7 @@ class StreamManagementModule extends Negotiator {
       }
     } else if (state == NegotiatorState.DONE) {
       if (ANonza.match(nonza)) {
+
         parseAckResponse(nonza.getAttribute('h').value);
       } else if (RNonza.match(nonza)) {
         sendAckResponse();

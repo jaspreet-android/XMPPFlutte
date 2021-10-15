@@ -25,6 +25,7 @@ class ChatDetailState extends State<ChatDetail> implements UIMessageListener, UI
 
   var previous = '';
   bool composingSent = false;
+  bool active = false;
 
   @override
   void initState() {
@@ -36,7 +37,7 @@ class ChatDetailState extends State<ChatDetail> implements UIMessageListener, UI
 
     _contentTextController.addListener(() {
       print(_contentTextController.text);
-      if (!composingSent && _contentTextController.text != previous) {
+      if (!composingSent && _contentTextController.text != previous && active) {
         // typing
         XMPPConnection.instance.sendStateToCurrentChat(Constants.COMPOSING);
         Timer(Duration(seconds: 5), () {
@@ -44,7 +45,7 @@ class ChatDetailState extends State<ChatDetail> implements UIMessageListener, UI
           XMPPConnection.instance.sendStateToCurrentChat(Constants.PAUSED);
         });
         composingSent = true;
-      } else if (_contentTextController.text == previous) {
+      } else if (_contentTextController.text == previous && active) {
         // paused
         XMPPConnection.instance.sendStateToCurrentChat(Constants.PAUSED);
         composingSent = false;
@@ -126,7 +127,10 @@ class ChatDetailState extends State<ChatDetail> implements UIMessageListener, UI
                   itemCount: snapshot.data.length,
                   itemBuilder: (context, index) {
                     Map<String, dynamic> map = snapshot.data[index];
-
+                    // map.forEach((key, value) {
+                    //   print("key = "+ key);
+                    //   print(value);
+                    // });
                     return Container(
                       padding: EdgeInsets.only(
                           left: 14, right: 14, top: 10, bottom: 10),
@@ -155,10 +159,9 @@ class ChatDetailState extends State<ChatDetail> implements UIMessageListener, UI
                                     style: TextStyle(color: Colors.black87, fontSize: 16, fontWeight: FontWeight.w600),
                                     text: (map[DatabaseHelper.content]),
                                   ),
-                                  if (map[DatabaseHelper.sender_username] !=
-                                      XMPPConnection.currentChat)
+                                  if (map[DatabaseHelper.sender_username] != XMPPConnection.currentChat)
                                     WidgetSpan(
-                                      child: Icon(Icons.check,
+                                      child: Icon(map[DatabaseHelper.is_delivered] == 1 ? Icons.done_all : map[DatabaseHelper.is_sent] == 1 ? Icons.done : Icons.access_time,
                                           color: Colors.green),
                                     ),
                                 ],
@@ -276,5 +279,8 @@ class ChatDetailState extends State<ChatDetail> implements UIMessageListener, UI
   @override
   void updateStatus(String status) {
     _statusTextController.text =  XMPPConnection.currentChat + " is " + status;
+    if(status != Constants.INACTIVE) {
+      active = true;
+    }
   }
 }

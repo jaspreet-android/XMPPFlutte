@@ -1,4 +1,5 @@
 import 'package:xmpp_sdk/base/logger/Log.dart';
+import 'package:xmpp_sdk/core/constants.dart';
 import 'package:xmpp_sdk/core/xmpp_stone.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_login/flutter_login.dart';
@@ -57,12 +58,12 @@ class LoginPage extends StatelessWidget {
   Future<void> registerUser(LoginData data, BuildContext context) async {
     Log.logLevel = LogLevel.DEBUG;
     Log.logXmpp = true;
-    var host = XMPPConnection.HOST;
-    var port = XMPPConnection.PORT;
+    var host = Constants.HOST;
+    var port = Constants.PORT;
     var username = data.name;
-    var domain = XMPPConnection.DOMAIN;
+    var domain = Constants.DOMAIN;
     var password = data.password;
-    var resource = XMPPConnection.RESOURCE;
+    var resource = Constants.RESOURCE;
     print('connecting...');
     XMPPConnection.instance.register(host, port, username, domain, password, resource, context);
   }
@@ -70,12 +71,12 @@ class LoginPage extends StatelessWidget {
   Future<void> connectXMPP(LoginData data, BuildContext context) async {
     Log.logLevel = LogLevel.DEBUG;
     Log.logXmpp = true;
-    var host = XMPPConnection.HOST;
-    var port = XMPPConnection.PORT;
+    var host = Constants.HOST;
+    var port = Constants.PORT;
     var username = data.name;
-    var domain = XMPPConnection.DOMAIN;
+    var domain = Constants.DOMAIN;
     var password = data.password;
-    var resource = XMPPConnection.RESOURCE;
+    var resource = Constants.RESOURCE;
     print('connecting...');
     XMPPConnection.instance.login(host, port, username, domain, password, resource, context);
   }
